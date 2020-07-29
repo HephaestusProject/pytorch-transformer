@@ -1,5 +1,6 @@
-from tokenizers import Tokenizer, SentencePieceBPETokenizer
 from typing import List
+
+from tokenizers import SentencePieceBPETokenizer, Tokenizer
 
 from utils import root_dir, tokenizer_config
 

@@ -6,12 +6,12 @@ tokenizer = load_tokenizer()
 
 
 def test_tokenize():
-    line = 'Hello'
+    line = "Hello"
     result = tokenize(tokenizer, line)
-    assert result == ['▁He', 'llo']
+    assert result == ["▁He", "llo"]
 
 
 def test_tokenize_batch():
-    lines = ['Hello', 'Jihyung']
+    lines = ["Hello", "Jihyung"]
     results = tokenize_batch(tokenizer, lines)
-    assert results == [['▁He', 'llo'], ['▁J', 'ih', 'y', 'ung']]
+    assert results == [["▁He", "llo"], ["▁J", "ih", "y", "ung"]]
