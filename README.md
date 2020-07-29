@@ -32,6 +32,11 @@ The dominant sequence transduction models are based on complex recurrent or conv
 
 ### Tokenize
 
+#### Prerequisite
+```bash
+./download_wmt14_deen.sh
+```
+
 This repository assumes that tokenizer is already prepared.
 Below is a detailed description of tokenizer training.
 
