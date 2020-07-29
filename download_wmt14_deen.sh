@@ -2,7 +2,7 @@
 #
 # Download WMT14 parallel corpus for de-en translation model.
 
-DOWNLOAD_PATH='dataset/raw'
+DOWNLOAD_PATH='dataset'
 
 wget https://www.statmt.org/wmt13/training-parallel-europarl-v7.tgz --directory-prefix ${DOWNLOAD_PATH}  # same as previous year
 wget https://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz --directory-prefix ${DOWNLOAD_PATH}  # same as previous year

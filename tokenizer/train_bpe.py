@@ -5,8 +5,8 @@ from utils import dataset_config, root_dir, tokenizer_config
 tokenizer = SentencePieceBPETokenizer()
 tokenizer.train(
     [
-        f"{root_dir}/{dataset_config.raw.source_train}",
-        f"{root_dir}/{dataset_config.raw.target_train}",
+        f"{root_dir}/{dataset_config.path.source_train}",
+        f"{root_dir}/{dataset_config.path.target_train}",
     ],
     vocab_size=tokenizer_config.vocab_size,
     min_frequency=tokenizer_config.min_frequency,

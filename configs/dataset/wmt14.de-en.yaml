@@ -1,9 +1,6 @@
 name: wmt14.de-en
 source_lang: en
 target_lang: de
-raw:
-    source_train: dataset/raw/${name}.train.${source_lang}
-    target_train: dataset/raw/${name}.train.${target_lang}
-tokenized:
-    source_train: dataset/tokenized/${name}.train.bpe_tok.${source_lang}
-    target_train: dataset/tokenized/${name}.train.bpe_tok.${target_lang}
+path:
+    source_train: dataset/${name}.train.${source_lang}
+    target_train: dataset/${name}.train.${target_lang}
