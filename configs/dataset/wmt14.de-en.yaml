@@ -1,0 +1,6 @@
+name: wmt14.de-en
+source_lang: en
+target_lang: de
+path:
+    source_train: dataset/${name}.train.${source_lang}
+    target_train: dataset/${name}.train.${target_lang}
