@@ -1,7 +1,13 @@
 import pytest  # noqa: F401
-
 import tokenizers
-from tokenizer.encode import load_tokenizer, encode, encode_batch, tokenize, tokenize_batch
+
+from tokenizer.encode import (
+    encode,
+    encode_batch,
+    load_tokenizer,
+    tokenize,
+    tokenize_batch,
+)
 
 tokenizer = load_tokenizer()
 
