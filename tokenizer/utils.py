@@ -12,5 +12,5 @@ tokenizer_config = OmegaConf.load(
 
 
 def read_lines(path):
-    with open(path, encoding="utf-8", newline="\n") as f:
-        return f.readlines()
+    with open(path, encoding="utf-8") as f:
+        return [line.rstrip() for line in f.read().rstrip().split('\n')]
