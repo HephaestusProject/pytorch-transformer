@@ -51,7 +51,7 @@ cat dev/newssyscomb2009.en dev/news-test2008.en dev/newstest2009.en dev/newstest
 cat dev/newstest2013.de > wmt14.de-en.test.de
 cat dev/newstest2013.en > wmt14.de-en.test.en
 ./normalize-punctuation.perl de < wmt14.de-en.test.de > wmt14.de-en.test.norm.de
-./normalize-punctuation.perl en < wmt14.de-en.test.en > wmt14.de-en.test.norm.de
+./normalize-punctuation.perl en < wmt14.de-en.test.en > wmt14.de-en.test.norm.en
 
 
 # 4. Remove tgz and directories
