@@ -10850,9 +10850,9 @@ arbeit en.
 ▁S ud
 ▁a cht
 ▁c ult
-▁m a
 ▁multip le
 ▁withd raw
+▁m a
 ▁Stud ien
 u ver
 ▁grenzüber schreit
@@ -11569,12 +11569,12 @@ aus e,
 ▁R ock
 ▁reserv ation
 ▁serious ly
+▁( )
 ▁pl ug
 ▁spe zial
 ▁bl ue
 ▁l atter
 ▁trotz dem
-▁( )
 4 )
 v ol
 ▁V alle
@@ -11620,11 +11620,11 @@ ent er
 ▁ho her
 ▁we ight
 ▁caus es
+▁ )
 ▁wh atever
 ▁( 5
 ▁decision -m
 ettbewer bs
-▁ )
 ▁manufact uring
 ▁beginn t
 at r
@@ -12766,10 +12766,10 @@ igran ts
 ▁un möglich
 ▁L ist
 aus end
+a )
 f ar
 ▁Sol ar
 ▁Altern ative
-a )
 ▁w ären
 ▁Über setz
 ▁applic able
@@ -21137,6 +21137,7 @@ iz ar
 net .
 ▁Iran ,
 fert igung
+) )
 k örper
 ▁c ir
 im ents
@@ -21145,7 +21146,6 @@ im ents
 ▁bie tet,
 ▁car te
 ▁restaur ant.
-) )
 z icht
 ▁B und
 ▁for ce,
@@ -28914,6 +28914,7 @@ ad ar
 platz .
 ▁197 6
 ▁Second ,
+S h
 h rough
 p ath
 ed ed
@@ -28942,7 +28943,6 @@ haus halts
 ▁vernünft ig
 ▁Chem ie
 C ard
-S h
 ▁un über
 ▁F TP
 ▁K athedrale
@@ -35995,6 +35995,3 @@ com fort
 ▁Schattenberichterst atter
 d as
 at able
-▁B auer
-ul iche
-▁j o

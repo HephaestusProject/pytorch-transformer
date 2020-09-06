@@ -5,6 +5,9 @@ vocab_size: 37000
 min_frequency: 2
 special_tokens: 
     - '<unk>'
+    - '<bos>'
+    - '<eos>'
+    - '<pad>'
 limit_alphabet: 1000
 
 # Save options
