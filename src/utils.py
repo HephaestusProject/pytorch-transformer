@@ -9,6 +9,6 @@ def read_lines(filepath: str) -> List[str]:
     Returns:
         lines: list of lines
     """
-    with open(filepath, 'r', encoding='utf-8') as f:
-        lines = [line.rstrip('\n') for line in f]
+    with open(filepath, "r", encoding="utf-8") as f:
+        lines = [line.rstrip("\n") for line in f]
     return lines
