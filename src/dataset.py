@@ -6,7 +6,7 @@ from omegaconf import OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 from torch.utils.data import Dataset
 
-root_dir = Path("..")
+root_dir = Path(__file__).parent.parent
 model_config_dir = root_dir / "configs" / "model"
 tokenizer_config_dir = root_dir / "configs" / "tokenizer"
 tokenizer_dir = root_dir / "tokenizer"
@@ -40,10 +40,8 @@ class WMT14Dataset(Dataset):
         self.model_config = OmegaConf.load(model_config_dir / "transformers.yaml")
         self.tokenizer_config = OmegaConf.load(self.tokenizer_config_path)
         self.tokenizer = SentencePieceBPETokenizer(
-            vocab_file=tokenizer_dir / self.tokenizer_config.tokenizer_name
-            + "-vocab.json",
-            merges_file=tokenizer_dir / self.tokenizer_config.tokenizer_name
-            + "-merges.txt",
+            vocab_file=str(tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-vocab.json")),
+            merges_file=str(tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-merges.txt")),
         )
         self.source_lines = source_lines
         self.target_lines = target_lines
@@ -52,8 +50,7 @@ class WMT14Dataset(Dataset):
         return len(self.source_lines)
 
     def __getitem__(self, index: int) -> Tuple[List[int], List[int]]:
-        source_encoded = self.collate(self.source_lines[index])
-        target_encoded = self.collate(self.target_lines[index])
+        source_encoded, target_encoded = self.collate(self.source_lines[index], self.target_lines[index])
         return source_encoded, target_encoded
 
     def _encode(

@@ -5,10 +5,10 @@ from omegaconf import OmegaConf
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader
 
-from dataset import WMT14Dataset
-from utils import read_lines
+from .dataset import WMT14Dataset
+from .utils import read_lines
 
-root_dir = Path("..")
+root_dir = Path(__file__).parent.parent
 dataset_config_dir = root_dir / "configs" / "dataset"
 model_config_dir = root_dir / "configs" / "model"
 
@@ -32,7 +32,7 @@ class WMT14DataModule(LightningDataModule):
             )
         self.langpair = langpair
         self.dataset_config = OmegaConf.load(self.dataset_config_path)
-        self.model_config = OmegaConf.load(self.model_config_dir / "transformers.yaml")
+        self.model_config = OmegaConf.load(model_config_dir / "transformers.yaml")
 
     def setup(self, stage: Optional[str] = None) -> None:
         """Assign dataset for use in dataloaders
