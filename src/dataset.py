@@ -29,10 +29,11 @@ class WMT14Dataset(Dataset):
             self.tokenizer_config_path = (
                 tokenizer_config_dir / "sentencepiece_bpe_wmt14_deen.yaml"
             )
-        elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
-            self.tokenizer_config_path = (
-                tokenizer_config_dir / "sentencepiece_bpe_wmt14_enfr.yaml"
-            )
+        # TODO: add en-fr
+        #  elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
+        #      self.tokenizer_config_path = (
+        #          tokenizer_config_dir / "sentencepiece_bpe_wmt14_enfr.yaml"
+        #      )
         else:
             raise NotImplementedError(
                 f'{langpair} is not supported. Hephaestus project aims to reproduce "Attention is all you need", where transformer is tested on de-en and en-fr.'
