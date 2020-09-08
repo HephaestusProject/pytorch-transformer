@@ -1,10 +1,12 @@
 import pytest  # noqa: F401
+from pathlib import Path
+
 from src.utils import read_lines
 
-test_filepath = "data/example.de"
+test_filepath = Path(__file__).parent / "data/example.de"
 
 
-@pytest.mark.parametrize("filepath", test_filepath)
+@pytest.mark.parametrize("filepath", [test_filepath])
 def test_read_lines(filepath):
     de = read_lines(filepath)
     assert isinstance(de, list)

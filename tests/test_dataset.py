@@ -1,5 +1,5 @@
 import pytest  # noqa: E902
-from dataset import WMT14Dataset
+from src.dataset import WMT14Dataset
 
 
 @pytest.mark.parametrize("langpair", ["en-de"])
