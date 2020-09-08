@@ -1,5 +1,4 @@
 import pytest  # noqa: F401
-
 from src.utils import read_lines
 
 test_filepath = "data/example.de"

@@ -1,6 +1,4 @@
 import pytest  # noqa: E902
-from tokenizers import SentencePieceBPETokenizer
-
 from dataset import WMT14Dataset
 
 
