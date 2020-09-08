@@ -24,8 +24,9 @@ class WMT14DataModule(LightningDataModule):
         super().__init__()
         if langpair in ["de-en", "en-de", "deen", "ende"]:
             self.dataset_config_path = dataset_config_dir / "wmt14.de-en.yaml"
-        elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
-            self.dataset_config_path = dataset_config_dir / "wmt14.en-fr.yaml"
+        # TODO: add en-fr
+        #  elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
+        #      self.dataset_config_path = dataset_config_dir / "wmt14.en-fr.yaml"
         else:
             raise NotImplementedError(
                 f'{langpair} is not supported. Hephaestus project aims to reproduce "Attention is all you need", where transformer is tested on de-en and en-fr.'
