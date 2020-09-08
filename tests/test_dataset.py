@@ -82,7 +82,7 @@ def test_getitem(langpair, source_lines, target_lines):
 def test_encode(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_line, target_line in zip(source_lines, target_lines):
-        source_encode_test, target_encode_test = ds._encode(source_lines, target_line)
+        source_encode_test, target_encode_test = ds._encode(source_line, target_line)
         bos = ds.tokenizer.token_to_id("<bos>")
         eos = ds.tokenizer.token_to_id("<eos>")
         assert target_encode_test[0] == bos
