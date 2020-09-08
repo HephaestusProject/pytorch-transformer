@@ -6,7 +6,7 @@ from src.dataset import WMT14Dataset
 @pytest.mark.parametrize("source_lines", ["Hello"])
 @pytest.mark.parametrize("target_lines", ["안녕하세요"])
 def test_langpair_exception(langpair, source_lines, target_lines):
-    with pytest.raises(ValueError):
+    with pytest.raises(NotImplementedError):
         WMT14Dataset(langpair, source_lines, target_lines)
 
 
