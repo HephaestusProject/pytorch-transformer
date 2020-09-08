@@ -1,6 +1,6 @@
-import pytest  # noqa: F401
 from pathlib import Path
 
+import pytest  # noqa: F401
 from src.utils import read_lines
 
 test_filepath = Path(__file__).parent / "data/example.de"
