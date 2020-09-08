@@ -2,13 +2,21 @@ import pytest  # noqa: E902
 from src.dataset import WMT14Dataset
 
 
-@pytest.mark.parametrize("langpair", ["en-de"])
+@pytest.mark.parametrize("langpair", ["en-ko"])
+@pytest.mark.parametrize("source_lines", ["Hello"])
+@pytest.mark.parametrize("target_lines", ["안녕하세요"])
+def test_langpair_exception(langpair, source_lines, target_lines):
+    with pytest.raises(ValueError):
+        WMT14Dataset(langpair, source_lines, target_lines)
+
+
+@pytest.mark.parametrize("langpair", ["de-en"])
 @pytest.mark.parametrize(
     "source_lines",
     [
         [
             "Der Bau und die Reparatur der Autostraßen...",
-            "die Mitteilungen sollen den geschäftlichen kommerziellen Charakter tragen.",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
         ]
     ],
 )
@@ -17,7 +25,7 @@ from src.dataset import WMT14Dataset
     [
         [
             "Construction and repair of highways and...",
-            "An announcement must be commercial character.",
+            "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
         ]
     ],
 )
@@ -26,13 +34,13 @@ def test_len(langpair, source_lines, target_lines):
     assert len(ds.source_lines) == len(ds)
 
 
-@pytest.mark.parametrize("langpair", ["en-de"])
+@pytest.mark.parametrize("langpair", ["de-en"])
 @pytest.mark.parametrize(
     "source_lines",
     [
         [
             "Der Bau und die Reparatur der Autostraßen...",
-            "die Mitteilungen sollen den geschäftlichen kommerziellen Charakter tragen.",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
         ]
     ],
 )
@@ -41,7 +49,7 @@ def test_len(langpair, source_lines, target_lines):
     [
         [
             "Construction and repair of highways and...",
-            "An announcement must be commercial character.",
+            "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
         ]
     ],
 )
@@ -52,13 +60,13 @@ def test_getitem(langpair, source_lines, target_lines):
     assert source_encode_pad_test.size()[0] == ds.model_config.max_len
 
 
-@pytest.mark.parametrize("langpair", ["en-de"])
+@pytest.mark.parametrize("langpair", ["de-en"])
 @pytest.mark.parametrize(
     "source_lines",
     [
         [
             "Der Bau und die Reparatur der Autostraßen...",
-            "die Mitteilungen sollen den geschäftlichen kommerziellen Charakter tragen.",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
         ]
     ],
 )
@@ -67,7 +75,7 @@ def test_getitem(langpair, source_lines, target_lines):
     [
         [
             "Construction and repair of highways and...",
-            "An announcement must be commercial character.",
+            "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
         ]
     ],
 )
@@ -84,13 +92,13 @@ def test_encode(langpair, source_lines, target_lines):
     assert isinstance(source_encode_test[0], int)
 
 
-@pytest.mark.parametrize("langpair", ["en-de"])
+@pytest.mark.parametrize("langpair", ["de-en"])
 @pytest.mark.parametrize(
     "source_lines",
     [
         [
             "Der Bau und die Reparatur der Autostraßen...",
-            "die Mitteilungen sollen den geschäftlichen kommerziellen Charakter tragen.",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
         ]
     ],
 )
@@ -99,7 +107,7 @@ def test_encode(langpair, source_lines, target_lines):
     [
         [
             "Construction and repair of highways and...",
-            "An announcement must be commercial character.",
+            "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
         ]
     ],
 )
