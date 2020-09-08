@@ -40,8 +40,12 @@ class WMT14Dataset(Dataset):
         self.model_config = OmegaConf.load(model_config_dir / "transformers.yaml")
         self.tokenizer_config = OmegaConf.load(self.tokenizer_config_path)
         self.tokenizer = SentencePieceBPETokenizer(
-            vocab_file=str(tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-vocab.json")),
-            merges_file=str(tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-merges.txt")),
+            vocab_file=str(
+                tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-vocab.json")
+            ),
+            merges_file=str(
+                tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-merges.txt")
+            ),
         )
         self.source_lines = source_lines
         self.target_lines = target_lines
@@ -50,7 +54,9 @@ class WMT14Dataset(Dataset):
         return len(self.source_lines)
 
     def __getitem__(self, index: int) -> Tuple[List[int], List[int]]:
-        source_encoded, target_encoded = self.collate(self.source_lines[index], self.target_lines[index])
+        source_encoded, target_encoded = self.collate(
+            self.source_lines[index], self.target_lines[index]
+        )
         return source_encoded, target_encoded
 
     def _encode(
