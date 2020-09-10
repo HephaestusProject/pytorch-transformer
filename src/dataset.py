@@ -1,15 +1,10 @@
-from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 import torch
-from omegaconf import OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 from torch.utils.data import Dataset
 
-root_dir = Path(__file__).parent.parent
-model_config_dir = root_dir / "configs" / "model"
-tokenizer_config_dir = root_dir / "configs" / "tokenizer"
-tokenizer_dir = root_dir / "tokenizer"
+from .utils import get_configs, read_lines
 
 
 class WMT14Dataset(Dataset):
@@ -25,29 +20,8 @@ class WMT14Dataset(Dataset):
         self, langpair: str, source_lines: List[str], target_lines: List[str]
     ) -> None:
         super().__init__()
-        if langpair in ["de-en", "en-de", "deen", "ende"]:
-            self.tokenizer_config_path = (
-                tokenizer_config_dir / "sentencepiece_bpe_wmt14_deen.yaml"
-            )
-        # TODO: add en-fr
-        #  elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
-        #      self.tokenizer_config_path = (
-        #          tokenizer_config_dir / "sentencepiece_bpe_wmt14_enfr.yaml"
-        #      )
-        else:
-            raise NotImplementedError(
-                f'{langpair} is not supported. Hephaestus project aims to reproduce "Attention is all you need", where transformer is tested on de-en and en-fr.'
-            )
-        self.model_config = OmegaConf.load(model_config_dir / "transformers.yaml")
-        self.tokenizer_config = OmegaConf.load(self.tokenizer_config_path)
-        self.tokenizer = SentencePieceBPETokenizer(
-            vocab_file=str(
-                tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-vocab.json")
-            ),
-            merges_file=str(
-                tokenizer_dir / (self.tokenizer_config.tokenizer_name + "-merges.txt")
-            ),
-        )
+        self.configs = get_configs(langpair)
+        self.tokenizer = self.load_tokenizer()
         self.source_lines = source_lines
         self.target_lines = target_lines
 
@@ -96,7 +70,7 @@ class WMT14Dataset(Dataset):
             source_encoded: padded encodings of source_line
             target_encoded: padded encodings of target_line
         """
-        max_len = self.model_config.max_len
+        max_len = self.configs.model.max_len
         pad = self.tokenizer.token_to_id("<pad>")
 
         source_encoded, target_encoded = self._encode(source_line, target_line)
