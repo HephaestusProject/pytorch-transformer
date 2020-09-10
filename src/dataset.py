@@ -1,8 +1,9 @@
 from typing import List, Tuple, Optional
 
+from pytorch_lightning import LightningDataModule
 import torch
 from tokenizers import SentencePieceBPETokenizer
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset, DataLoader
 
 from .utils import get_configs, read_lines
 
@@ -92,3 +93,72 @@ class WMT14Dataset(Dataset):
             torch.tensor(target_encoded),
         )
         return source_encoded, target_encoded
+
+    def load_tokenizer(self):
+        tokenizer = SentencePieceBPETokenizer(vocab_file=str(self.configs.tokenizer.tokenizer_vocab), merges_file=str(self.configs.tokenizer.tokenizer_merges))
+        return tokenizer
+
+
+class WMT14DataLoader(LightningDataModule):
+    """Load WMT14 dataset to train and test transformer
+
+    Attributes:
+        langpair: language pair to translate
+    """
+
+    def __init__(self, langpair: str) -> None:
+        super().__init__()
+        self.configs = get_configs(langpair)
+        self.langpair = langpair
+
+    def setup(self, stage: Optional[str] = None) -> None:
+        """Assign dataset for use in dataloaders
+
+        Args:
+            stage: decide to load train/val or test
+        """
+        # Assign train/val datasets for use in dataloaders
+        if stage == "fit" or stage is None:
+            self.source_train = read_lines(self.configs.dataset.path.source_train)
+            self.source_val = read_lines(self.configs.dataset.path.source_dev)
+            self.target_train = read_lines(self.configs.dataset.path.target_train)
+            self.target_val = read_lines(self.configs.dataset.path.target_dev)
+            assert len(self.source_train) == len(self.target_train)
+            assert len(self.source_val) == len(self.target_val)
+        # Assign test dataset for use in dataloaders
+        if stage == "test" or stage is None:
+            self.source_test = read_lines(self.configs.dataset.path.source_test)
+            self.target_test = read_lines(self.configs.dataset.path.target_test)
+            assert len(self.source_test) == len(self.target_test)
+
+    def train_dataloader(self) -> DataLoader:
+        train_dataset = WMT14Dataset(
+            self.langpair, self.source_train, self.target_train
+        )
+        return DataLoader(
+            train_dataset,
+            batch_size=self.configs.model.train_hparams.batch_size,
+            shuffle=True,
+            drop_last=True,
+            num_workers=-1,
+        )
+
+    def valid_dataloader(self) -> DataLoader:
+        val_dataset = WMT14Dataset(self.langpair, self.source_val, self.target_val)
+        return DataLoader(
+            val_dataset,
+            batch_size=self.configs.model.train_hparams.batch_size,
+            shuffle=False,
+            drop_last=False,
+            num_workers=-1,
+        )
+
+    def test_dataloader(self) -> DataLoader:
+        test_dataset = WMT14Dataset(self.langpair, self.source_test, self.target_test)
+        return DataLoader(
+            test_dataset,
+            batch_size=self.configs.model.train_hparams.batch_size,
+            shuffle=False,
+            drop_last=False,
+            num_workers=-1,
+        )
