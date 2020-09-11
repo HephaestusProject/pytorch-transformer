@@ -1,6 +1,8 @@
 import pytest  # noqa: E902
 
-from src.dataset import WMT14Dataset
+from torch.utils.data import DataLoader
+
+from src.dataset import WMT14Dataset, WMT14DataLoader
 
 test_langpair_exception_input = [
     # (langpair, source_lines, target_lines)
@@ -69,3 +71,35 @@ def test_collate(langpair, source_lines, target_lines):
         )
         assert source_encode_pad_test.size() == target_encode_pad_test.size()
         assert source_encode_pad_test.size()[0] == ds.configs.model.max_len
+
+
+test_dataloader_input = [
+    # (langpair)
+    ("example")
+]
+
+
+@pytest.mark.parametrize("langpair", test_dataloader_input)
+def test_dataloader_setup(langpair):
+    dl = WMT14DataLoader(langpair)
+    dl.setup("fit")
+    dl.setup("test")
+    dl.setup()
+
+
+@pytest.mark.parametrize("langpair", test_dataloader_input)
+def test_dataloader_train_dataloader(langpair):
+    dl = WMT14DataLoader(langpair)
+    dl.setup("fit")
+    train_dataloader = dl.train_dataloader()
+    val_dataloader = dl.valid_dataloader()
+    assert isinstance(train_dataloader, DataLoader)
+    assert isinstance(val_dataloader, DataLoader)
+
+
+@pytest.mark.parametrize("langpair", test_dataloader_input)
+def test_dataloader_test_dataloader(langpair):
+    dl = WMT14DataLoader(langpair)
+    dl.setup("test")
+    test_dataloader = dl.test_dataloader()
+    assert isinstance(test_dataloader, DataLoader)

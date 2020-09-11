@@ -1,0 +1,14 @@
+# ref: Attention is all you need
+vocab_size: 37000
+
+# Default huggingface SentencePieceBPETokenizer options
+min_frequency: 2
+special_tokens: 
+    - '<unk>'
+    - '<bos>'
+    - '<eos>'
+    - '<pad>'
+limit_alphabet: 1000
+
+# Save options
+tokenizer_name: 'sentencepiece_bpe_wmt14_deen.tokenizer'
