@@ -53,3 +53,15 @@ def test_get_config(langpair, arg):
     config = get_config(langpair, arg)
     assert isinstance(config, DictConfig)
     assert len(config) > 0
+
+
+test_get_config_directory_error_input = [
+    # (langpair, arg)
+    ("en-de", "tokenization")
+]
+
+
+@pytest.mark.parametrize("langpair, arg", test_get_config_directory_error_input)
+def test_get_config_directory_error(langpair, arg):
+    with pytest.raises(NotADirectoryError):
+        get_config(langpair, arg)
