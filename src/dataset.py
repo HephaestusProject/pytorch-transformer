@@ -143,7 +143,7 @@ class WMT14DataLoader(LightningDataModule):
             batch_size=self.configs.model.train_hparams.batch_size,
             shuffle=True,
             drop_last=True,
-            num_workers=-1,
+            num_workers=self.configs.model.data_params.num_workers,
         )
 
     def valid_dataloader(self) -> DataLoader:
@@ -153,7 +153,7 @@ class WMT14DataLoader(LightningDataModule):
             batch_size=self.configs.model.train_hparams.batch_size,
             shuffle=False,
             drop_last=False,
-            num_workers=-1,
+            num_workers=self.configs.model.data_params.num_workers,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -163,5 +163,5 @@ class WMT14DataLoader(LightningDataModule):
             batch_size=self.configs.model.train_hparams.batch_size,
             shuffle=False,
             drop_last=False,
-            num_workers=-1,
+            num_workers=self.configs.model.data_params.num_workers,
         )
