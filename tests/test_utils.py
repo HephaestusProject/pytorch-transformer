@@ -24,8 +24,10 @@ def test_read_lines(filepath):
 
 test_get_configs_input = [
     # (langpair)
-    "de-en",
-    "deen",
+    "en-de",
+    "ende",
+    "ENDE",
+    "EN-DE",
 ]
 
 

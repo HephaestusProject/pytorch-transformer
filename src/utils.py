@@ -17,6 +17,28 @@ def read_lines(filepath: Path) -> List[str]:
     return lines
 
 
+def normalize_langpair(langpair: str) -> str:
+    """Normalize language pair
+
+    Args:
+        langpair: language pairs in various formats
+    Returns:
+        langpair_norm: language pair in normalized format
+    """
+    if langpair in ["en-de", "ende", "ENDE", "EN-DE"]:
+        langpair_norm = "en-de"
+    # TODO: add en-fr
+    #  elif langpair in ["en-fr", "enfr", "EN-FR", "ENFR"]:
+    #  langpair_norm = "en-fr"
+    elif langpair == "example":  # for test
+        langpair_norm = langpair
+    else:
+        raise NotImplementedError(
+            f'{langpair} is not supported, since Hephaestus project aims to reproduce "Attention is all you need".'
+        )
+    return langpair_norm
+
+
 def get_configs(langpair: str) -> DictConfig:
     """Get all configurations regarding model training
 
@@ -25,6 +47,8 @@ def get_configs(langpair: str) -> DictConfig:
     Returns:
         configs: a single configuration that merged dataset, tokenizer, and model configurations
     """
+    langpair = normalize_langpair(langpair)
+
     root_dir = Path(__file__).parent.parent
     dataset_config_dir = root_dir / "configs" / "dataset"
     tokenizer_config_dir = root_dir / "configs" / "tokenizer"
@@ -35,22 +59,10 @@ def get_configs(langpair: str) -> DictConfig:
     model_config_path = model_config_dir / "transformers.yaml"
     model_config = OmegaConf.load(model_config_path)
 
-    if langpair in ["de-en", "en-de", "deen", "ende"]:
-        langpair = "deen"
-        dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
-        tokenizer_config_path = (
-            tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
-        )
-    # TODO: add en-fr
-    #  elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
-    #  langpair = "enfr"
-    #  dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
-    #  tokenizer_config_path = tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
-    else:
-        raise NotImplementedError(
-            f'{langpair} is not supported, since Hephaestus project aims to reproduce "Attention is all you need".'
-        )
-
+    dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
+    tokenizer_config_path = (
+        tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
+    )
     dataset_config = OmegaConf.load(dataset_config_path)
     tokenizer_config = OmegaConf.load(tokenizer_config_path)
     tokenizer_config.tokenizer_vocab = str(
