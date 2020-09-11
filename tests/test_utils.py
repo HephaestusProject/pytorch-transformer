@@ -34,13 +34,12 @@ test_get_configs_input = [
 @pytest.mark.parametrize("langpair, args", test_get_configs_input)
 def test_get_configs(langpair, args):
     configs = get_configs(langpair, *args)
-    print(configs)
     assert isinstance(configs, DictConfig)
     assert len(configs) > 0
 
 
 test_get_config_input = [
-    # (langpair, args)
+    # (langpair, arg)
     ("en-de", "dataset"),
     ("ende", "tokenizer"),
     ("EN-DE", "model"),
