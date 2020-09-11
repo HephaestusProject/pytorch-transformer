@@ -1,6 +1,6 @@
 import pytest  # noqa: E902
-from src.dataset import WMT14Dataset
 
+from src.dataset import WMT14Dataset
 
 test_langpair_exception_input = [
     # (langpair, source_lines, target_lines)
@@ -9,7 +9,9 @@ test_langpair_exception_input = [
 ]
 
 
-@pytest.mark.parametrize("langpair, source_lines, target_lines", test_langpair_exception_input)
+@pytest.mark.parametrize(
+    "langpair, source_lines, target_lines", test_langpair_exception_input
+)
 def test_langpair_exception(langpair, source_lines, target_lines):
     with pytest.raises(NotImplementedError):
         WMT14Dataset(langpair, source_lines, target_lines)
@@ -17,7 +19,17 @@ def test_langpair_exception(langpair, source_lines, target_lines):
 
 test_input = [
     # (langpair, source_lines, target_lines)
-    ("de-en", ["Der Bau und die Reparatur der Autostraßen...", "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz."], ["Construction and repair of highways and...", "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence."])
+    (
+        "de-en",
+        [
+            "Der Bau und die Reparatur der Autostraßen...",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
+        ],
+        [
+            "Construction and repair of highways and...",
+            "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
+        ],
+    )
 ]
 
 
@@ -32,7 +44,7 @@ def test_getitem(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_encode_pad_test, target_encode_pad_test in ds:
         assert source_encode_pad_test.size() == target_encode_pad_test.size()
-        assert source_encode_pad_test.size()[0] == ds.model_config.max_len
+        assert source_encode_pad_test.size()[0] == ds.configs.model.max_len
 
 
 @pytest.mark.parametrize("langpair, source_lines, target_lines", test_input)
@@ -56,4 +68,4 @@ def test_collate(langpair, source_lines, target_lines):
             source_line, target_line
         )
         assert source_encode_pad_test.size() == target_encode_pad_test.size()
-        assert source_encode_pad_test.size()[0] == ds.model_config.max_len
+        assert source_encode_pad_test.size()[0] == ds.configs.model.max_len

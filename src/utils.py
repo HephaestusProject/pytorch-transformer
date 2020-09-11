@@ -38,12 +38,14 @@ def get_configs(langpair: str) -> DictConfig:
     if langpair in ["de-en", "en-de", "deen", "ende"]:
         langpair = "deen"
         dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
-        tokenizer_config_path = tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
+        tokenizer_config_path = (
+            tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
+        )
     # TODO: add en-fr
     #  elif langpair in ["en-fr", "fr-en", "enfr", "fren"]:
-        #  langpair = "enfr"
-        #  dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
-        #  tokenizer_config_path = tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
+    #  langpair = "enfr"
+    #  dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
+    #  tokenizer_config_path = tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
     else:
         raise NotImplementedError(
             f'{langpair} is not supported, since Hephaestus project aims to reproduce "Attention is all you need".'
@@ -58,5 +60,7 @@ def get_configs(langpair: str) -> DictConfig:
         root_dir / "tokenizer" / (tokenizer_config.tokenizer_name + "-merges.txt")
     )
 
-    configs.update(dataset=dataset_config, tokenizer=tokenizer_config, model=model_config)
+    configs.update(
+        dataset=dataset_config, tokenizer=tokenizer_config, model=model_config
+    )
     return configs

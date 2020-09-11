@@ -1,9 +1,9 @@
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
-from pytorch_lightning import LightningDataModule
 import torch
+from pytorch_lightning import LightningDataModule
 from tokenizers import SentencePieceBPETokenizer
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import DataLoader, Dataset
 
 from .utils import get_configs, read_lines
 

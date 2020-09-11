@@ -3,11 +3,12 @@ from pathlib import Path
 import pytest  # noqa: F401
 from omegaconf import DictConfig
 
-from src.utils import read_lines, get_configs
+from src.utils import get_configs, read_lines
 
 test_read_lines_input = [
     # (filepath)
-    Path(__file__).parent / "data/example.de"
+    Path(__file__).parent
+    / "data/example.de"
 ]
 
 
@@ -24,7 +25,7 @@ def test_read_lines(filepath):
 test_get_configs_input = [
     # (langpair)
     "de-en",
-    "deen"
+    "deen",
 ]
 
 
