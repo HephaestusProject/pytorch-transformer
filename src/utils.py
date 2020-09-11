@@ -51,8 +51,12 @@ def get_configs(langpair: str) -> DictConfig:
 
     dataset_config = OmegaConf.load(dataset_config_path)
     tokenizer_config = OmegaConf.load(tokenizer_config_path)
-    tokenizer_config.tokenizer_vocab = root_dir / "tokenizer" / tokenizer_config.tokenizer_name + '-vocab.json'
-    tokenizer_config.tokenizer_merges = root_dir / "tokenizer" / tokenizer_config.tokenizer_name + '-merges.txt'
+    tokenizer_config.tokenizer_vocab = str(
+        root_dir / "tokenizer" / (tokenizer_config.tokenizer_name + "-vocab.json")
+    )
+    tokenizer_config.tokenizer_merges = str(
+        root_dir / "tokenizer" / (tokenizer_config.tokenizer_name + "-merges.txt")
+    )
 
     configs.update(dataset=dataset_config, tokenizer=tokenizer_config, model=model_config)
     return configs

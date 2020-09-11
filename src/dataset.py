@@ -95,7 +95,10 @@ class WMT14Dataset(Dataset):
         return source_encoded, target_encoded
 
     def load_tokenizer(self):
-        tokenizer = SentencePieceBPETokenizer(vocab_file=str(self.configs.tokenizer.tokenizer_vocab), merges_file=str(self.configs.tokenizer.tokenizer_merges))
+        tokenizer = SentencePieceBPETokenizer(
+            vocab_file=self.configs.tokenizer.tokenizer_vocab,
+            merges_file=self.configs.tokenizer.tokenizer_merges,
+        )
         return tokenizer
 
 
