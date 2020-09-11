@@ -4,7 +4,7 @@ from typing import List
 from omegaconf import DictConfig, OmegaConf
 
 
-def read_lines(filepath: Path) -> List[str]:
+def read_lines(filepath: str) -> List[str]:
     """Read text file
 
     Args:
@@ -12,6 +12,7 @@ def read_lines(filepath: Path) -> List[str]:
     Returns:
         lines: list of lines
     """
+    filepath = Path(filepath)
     with filepath.open("r", encoding="utf-8") as f:
         lines = [line.rstrip("\n") for line in f]
     return lines
