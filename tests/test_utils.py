@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest  # noqa: F401
 from omegaconf import DictConfig
 
-from src.utils import get_configs, read_lines
+from src.utils import get_config, get_configs, read_lines
 
 test_read_lines_input = [
     # (filepath)
@@ -23,21 +23,33 @@ def test_read_lines(filepath):
 
 
 test_get_configs_input = [
-    # (langpair)
-    "en-de",
-    "ende",
-    "ENDE",
-    "EN-DE",
+    # (langpair, args)
+    ("en-de", ("dataset", "tokenizer", "model")),
+    ("ende", ("tokenizer", "model")),
+    ("EN-DE", ("tokenizer", "model")),
+    ("ENDE", ("dataset", "tokenizer")),
 ]
 
 
-@pytest.mark.parametrize("langpair", test_get_configs_input)
-def test_get_configs(langpair):
-    configs = get_configs(langpair)
-    assert isinstance(configs.dataset, DictConfig)
-    assert isinstance(configs.tokenizer, DictConfig)
-    assert isinstance(configs.model, DictConfig)
+@pytest.mark.parametrize("langpair, args", test_get_configs_input)
+def test_get_configs(langpair, args):
+    configs = get_configs(langpair, *args)
+    print(configs)
+    assert isinstance(configs, DictConfig)
+    assert len(configs) > 0
 
-    assert len(configs.dataset) > 0
-    assert len(configs.tokenizer) > 0
-    assert len(configs.model) > 0
+
+test_get_config_input = [
+    # (langpair, args)
+    ("en-de", "dataset"),
+    ("ende", "tokenizer"),
+    ("EN-DE", "model"),
+    ("ENDE", "dataset"),
+]
+
+
+@pytest.mark.parametrize("langpair, arg", test_get_config_input)
+def test_get_config(langpair, arg):
+    config = get_config(langpair, arg)
+    assert isinstance(config, DictConfig)
+    assert len(config) > 0

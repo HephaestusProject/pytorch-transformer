@@ -21,7 +21,7 @@ class WMT14Dataset(Dataset):
         self, langpair: str, source_lines: List[str], target_lines: List[str]
     ) -> None:
         super().__init__()
-        self.configs = get_configs(langpair)
+        self.configs = get_configs(langpair, "tokenizer", "model")
         self.tokenizer = self.load_tokenizer()
         self.source_lines = source_lines
         self.target_lines = target_lines
@@ -111,7 +111,7 @@ class WMT14DataLoader(LightningDataModule):
 
     def __init__(self, langpair: str) -> None:
         super().__init__()
-        self.configs = get_configs(langpair)
+        self.configs = get_configs(langpair, "dataset", "model")
         self.langpair = langpair
 
     def setup(self, stage: Optional[str] = None) -> None:

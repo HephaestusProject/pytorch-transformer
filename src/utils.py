@@ -40,40 +40,60 @@ def normalize_langpair(langpair: str) -> str:
     return langpair_norm
 
 
-def get_configs(langpair: str) -> DictConfig:
+def get_configs(langpair: str, *args: str) -> DictConfig:
     """Get all configurations regarding model training
 
     Args:
         langpair: language pair to train transformer
+        args: configuration types (e.g., tokenizer, dataset, model)
     Returns:
         configs: a single configuration that merged dataset, tokenizer, and model configurations
     """
     langpair = normalize_langpair(langpair)
-
-    root_dir = Path(__file__).parent.parent
-    dataset_config_dir = root_dir / "configs" / "dataset"
-    tokenizer_config_dir = root_dir / "configs" / "tokenizer"
-    model_config_dir = root_dir / "configs" / "model"
-
     configs = OmegaConf.create()
 
-    model_config_path = model_config_dir / "transformers.yaml"
-    model_config = OmegaConf.load(model_config_path)
+    for arg in args:
+        config = get_config(langpair, arg)
+        configs[arg] = config
 
-    dataset_config_path = dataset_config_dir / f"wmt14.{langpair}.yaml"
-    tokenizer_config_path = (
-        tokenizer_config_dir / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
-    )
-    dataset_config = OmegaConf.load(dataset_config_path)
-    tokenizer_config = OmegaConf.load(tokenizer_config_path)
-    tokenizer_config.tokenizer_vocab = str(
-        root_dir / "tokenizer" / (tokenizer_config.tokenizer_name + "-vocab.json")
-    )
-    tokenizer_config.tokenizer_merges = str(
-        root_dir / "tokenizer" / (tokenizer_config.tokenizer_name + "-merges.txt")
-    )
-
-    configs.update(
-        dataset=dataset_config, tokenizer=tokenizer_config, model=model_config
-    )
+    OmegaConf.set_readonly(configs, True)
     return configs
+
+
+def get_config(langpair: str, arg: str) -> DictConfig:
+    """Get a configuration designated by arg
+
+    Args:
+        langpair: language pair
+        arg: configuration type
+    Returns:
+        config: configuration related to the arg
+    """
+    langpair = normalize_langpair(langpair)
+    root_dir = Path(__file__).parent.parent
+    config_dir = root_dir / "configs" / arg
+    if not config_dir.is_dir():
+        raise NotADirectoryError(
+            f"{config_dir} does not exists. Check if configuration saved directory exists."
+        )
+
+    if arg == "model":
+        config_path = config_dir / "transformers.yaml"
+    else:
+        config_path = list(config_dir.glob(f"*{langpair}*"))[0]
+        if not config_path.exists():
+            raise FileNotFoundError(
+                f"{config_path} does not exists. Check if configuration yaml file exists."
+            )
+
+    config = OmegaConf.load(config_path)
+
+    if arg == "tokenizer":
+        config.tokenizer_vocab = str(
+            root_dir / "tokenizer" / (config.tokenizer_name + "-vocab.json")
+        )
+        config.tokenizer_merges = str(
+            root_dir / "tokenizer" / (config.tokenizer_name + "-merges.txt")
+        )
+
+    return config
