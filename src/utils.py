@@ -81,10 +81,6 @@ def get_config(langpair: str, arg: str) -> DictConfig:
         config_path = config_dir / "transformers.yaml"
     else:
         config_path = list(config_dir.glob(f"*{langpair}*"))[0]
-        if not config_path.exists():
-            raise FileNotFoundError(
-                f"{config_path} does not exists. Check if configuration yaml file exists."
-            )
 
     config = OmegaConf.load(config_path)
 
