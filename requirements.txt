@@ -1,3 +1,4 @@
 omegaconf>=2.0.0
 tokenizers>=0.8.1 
 tqdm>=4.48.0
+pytorch-lightning>=0.8.5

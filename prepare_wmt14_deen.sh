@@ -36,22 +36,22 @@ wget https://www.statmt.org/wmt11/normalize-punctuation.perl
 chmod +x normalize-punctuation.perl
 
 ## 3.1 Training corpus
-cat training/europarl-v7.de-en.de training/news-commentary-v9.de-en.de training/commoncrawl.de-en.de > wmt14.de-en.train.de
-cat training/europarl-v7.de-en.en training/news-commentary-v9.de-en.en training/commoncrawl.de-en.en > wmt14.de-en.train.en
-./normalize-punctuation.perl de < wmt14.de-en.train.de > wmt14.de-en.train.norm.de
-./normalize-punctuation.perl en < wmt14.de-en.train.en > wmt14.de-en.train.norm.en
+cat training/europarl-v7.de-en.de training/news-commentary-v9.de-en.de training/commoncrawl.de-en.de > wmt14.deen.train.de
+cat training/europarl-v7.de-en.en training/news-commentary-v9.de-en.en training/commoncrawl.de-en.en > wmt14.deen.train.en
+./normalize-punctuation.perl de < wmt14.deen.train.de > wmt14.deen.train.norm.de
+./normalize-punctuation.perl en < wmt14.deen.train.en > wmt14.deen.train.norm.en
 
 ## 3.2 Validation corpus
-cat dev/newssyscomb2009.de dev/news-test2008.de dev/newstest2009.de dev/newstest2010.de dev/newstest2011.de dev/newstest2012.de > wmt14.de-en.dev.de
-cat dev/newssyscomb2009.en dev/news-test2008.en dev/newstest2009.en dev/newstest2010.en dev/newstest2011.en dev/newstest2012.en > wmt14.de-en.dev.en
-./normalize-punctuation.perl de < wmt14.de-en.dev.de > wmt14.de-en.dev.norm.de
-./normalize-punctuation.perl en < wmt14.de-en.dev.en > wmt14.de-en.dev.norm.en
+cat dev/newssyscomb2009.de dev/news-test2008.de dev/newstest2009.de dev/newstest2010.de dev/newstest2011.de dev/newstest2012.de > wmt14.deen.dev.de
+cat dev/newssyscomb2009.en dev/news-test2008.en dev/newstest2009.en dev/newstest2010.en dev/newstest2011.en dev/newstest2012.en > wmt14.deen.dev.en
+./normalize-punctuation.perl de < wmt14.deen.dev.de > wmt14.deen.dev.norm.de
+./normalize-punctuation.perl en < wmt14.deen.dev.en > wmt14.deen.dev.norm.en
 
 ## 3.3 Test corpus
-cat dev/newstest2013.de > wmt14.de-en.test.de
-cat dev/newstest2013.en > wmt14.de-en.test.en
-./normalize-punctuation.perl de < wmt14.de-en.test.de > wmt14.de-en.test.norm.de
-./normalize-punctuation.perl en < wmt14.de-en.test.en > wmt14.de-en.test.norm.de
+cat dev/newstest2013.de > wmt14.deen.test.de
+cat dev/newstest2013.en > wmt14.deen.test.en
+./normalize-punctuation.perl de < wmt14.deen.test.de > wmt14.deen.test.norm.de
+./normalize-punctuation.perl en < wmt14.deen.test.en > wmt14.deen.test.norm.en
 
 
 # 4. Remove tgz and directories

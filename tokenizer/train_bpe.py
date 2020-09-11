@@ -1,18 +1,25 @@
+from pathlib import Path
+
+from omegaconf import OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 
-from utils import dataset_config, root_dir, tokenizer_config
+root_dir = Path("..")
+config_dir = root_dir / "configs"
+dataset_config = OmegaConf.load(config_dir / "dataset" / "wmt14.de-en.yaml")
+tokenizer_config = OmegaConf.load(
+    config_dir / "tokenizer" / "sentencepiece_bpe_wmt14_deen.yaml"
+)
+
 
 tokenizer = SentencePieceBPETokenizer()
 tokenizer.train(
     [
-        f"{root_dir}/{dataset_config.path.source_train}",
-        f"{root_dir}/{dataset_config.path.target_train}",
+        str(root_dir / dataset_config.path.source_train),
+        str(root_dir / dataset_config.path.target_train),
     ],
     vocab_size=tokenizer_config.vocab_size,
     min_frequency=tokenizer_config.min_frequency,
     special_tokens=list(tokenizer_config.special_tokens),
     limit_alphabet=tokenizer_config.limit_alphabet,
 )
-tokenizer.save_model(
-    directory=f"{root_dir}/tokenizer", name=tokenizer_config.tokenizer_name
-)
+tokenizer.save_model(directory=".", name=tokenizer_config.tokenizer_name)

@@ -1,0 +1,7 @@
+max_len: 100  # ref: http://nlp.seas.harvard.edu/2018/04/03/attention.html
+
+data_params:
+    num_workers: 8
+
+train_hparams:
+    batch_size: 12000
