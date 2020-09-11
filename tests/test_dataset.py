@@ -1,8 +1,7 @@
 import pytest  # noqa: E902
-
 from torch.utils.data import DataLoader
 
-from src.dataset import WMT14Dataset, WMT14DataLoader
+from src.dataset import WMT14DataLoader, WMT14Dataset
 
 test_langpair_exception_input = [
     # (langpair, source_lines, target_lines)
