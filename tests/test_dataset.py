@@ -19,38 +19,38 @@ def test_langpair_exception(langpair, source_lines, target_lines):
         WMT14Dataset(langpair, source_lines, target_lines)
 
 
-test_input = [
+test_dataset_input = [
     # (langpair, source_lines, target_lines)
     (
-        "de-en",
-        [
-            "Der Bau und die Reparatur der Autostraßen...",
-            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
-        ],
+        "en-de",
         [
             "Construction and repair of highways and...",
             "This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence. This is a very very long sentence.",
+        ],
+        [
+            "Der Bau und die Reparatur der Autostraßen...",
+            "Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz. Dies ist ein sehr sehr langer Satz.",
         ],
     )
 ]
 
 
-@pytest.mark.parametrize("langpair, source_lines, target_lines", test_input)
-def test_len(langpair, source_lines, target_lines):
+@pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
+def test_dataset_len(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     assert len(ds.source_lines) == len(ds)
 
 
-@pytest.mark.parametrize("langpair, source_lines, target_lines", test_input)
-def test_getitem(langpair, source_lines, target_lines):
+@pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
+def test_dataset_getitem(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_encode_pad_test, target_encode_pad_test in ds:
         assert source_encode_pad_test.size() == target_encode_pad_test.size()
         assert source_encode_pad_test.size()[0] == ds.configs.model.max_len
 
 
-@pytest.mark.parametrize("langpair, source_lines, target_lines", test_input)
-def test_encode(langpair, source_lines, target_lines):
+@pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
+def test_dataset_encode(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_line, target_line in zip(source_lines, target_lines):
         source_encode_test, target_encode_test = ds._encode(source_line, target_line)
@@ -62,8 +62,8 @@ def test_encode(langpair, source_lines, target_lines):
         assert isinstance(source_encode_test[0], int)
 
 
-@pytest.mark.parametrize("langpair, source_lines, target_lines", test_input)
-def test_collate(langpair, source_lines, target_lines):
+@pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
+def test_dataset_collate(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_line, target_line in zip(source_lines, target_lines):
         source_encode_pad_test, target_encode_pad_test = ds.collate(
