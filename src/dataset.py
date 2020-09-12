@@ -134,6 +134,7 @@ class WMT14DataLoader(LightningDataModule):
             self.target_test = read_lines(self.configs.dataset.path.target_test)
             assert len(self.source_test) == len(self.target_test)
 
+    # TODO: batch together by approx. sequence length. each batch contains 25k source tokens and 25k target tokens
     def train_dataloader(self) -> DataLoader:
         train_dataset = WMT14Dataset(
             self.langpair, self.source_train, self.target_train
