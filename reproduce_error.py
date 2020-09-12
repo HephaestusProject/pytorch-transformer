@@ -7,7 +7,8 @@ dataset_config_path = config_dir / 'dataset' / 'wmt14.en-de.omegaconf-bug.yaml'
 tokenizer_config_path = config_dir / 'tokenizer' / 'sentencepiece_bpe_wmt14_en-de.yaml'
 
 configs = OmegaConf.create()
-configs.update(dataset=dataset_config_path, tokenizer=tokenizer_config_path)
+configs.update(dataset=OmegaConf.load(dataset_config_path), tokenizer=OmegaConf.load(tokenizer_config_path))
+print(configs)
 
 
 def read_lines(path):
