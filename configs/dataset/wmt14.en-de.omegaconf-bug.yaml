@@ -4,9 +4,9 @@ target_lang: de
 
 # Drop variable interpolation due to omegaconf issue  (ref: https://github.com/omry/omegaconf/issues/369)
 path:
-    source_train: dataset/${name}.train.norm.${source_lang}
-    source_dev: dataset/${name}.dev.norm.${source_lang}
-    source_test: dataset/${name}.test.norm.${source_lang}
-    target_train: dataset/${name}.train.norm.${target_lang}
-    target_dev: dataset/${name}.dev.norm.${target_lang}
-    target_test: dataset/${name}.test.norm.${target_lang}
+    source_train: dataset/${..name}.train.norm.${..source_lang}
+    source_dev: dataset/${..name}.dev.norm.${..source_lang}
+    source_test: dataset/${..name}.test.norm.${..source_lang}
+    target_train: dataset/${..name}.train.norm.${..target_lang}
+    target_dev: dataset/${..name}.dev.norm.${..target_lang}
+    target_test: dataset/${..name}.test.norm.${..target_lang}

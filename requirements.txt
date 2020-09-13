@@ -1,4 +1,4 @@
-omegaconf>=2.0.0
+omegaconf>=2.1.0.dev1
 tokenizers>=0.8.1 
 tqdm>=4.48.0
 pytorch-lightning>=0.8.5
