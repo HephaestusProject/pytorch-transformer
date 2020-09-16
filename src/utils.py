@@ -1,6 +1,7 @@
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
+from tokenizers import SentencePieceBPETokenizer
 from omegaconf import DictConfig, OmegaConf
 
 
@@ -40,36 +41,34 @@ def normalize_langpair(langpair: str) -> str:
     return langpair_norm
 
 
-def get_configs(langpair: str, *args: str) -> DictConfig:
+def get_configs(*args: str, langpair: Optional[str] = None) -> DictConfig:
     """Get all configurations regarding model training
 
     Args:
-        langpair: language pair to train transformer
         args: configuration types (e.g., tokenizer, dataset, model)
+        langpair: language pair for a translation task
     Returns:
         configs: a single configuration that merged dataset, tokenizer, and model configurations
     """
-    langpair = normalize_langpair(langpair)
     configs = OmegaConf.create()
 
     for arg in args:
-        config = get_config(langpair, arg)
+        config = get_config(arg, langpair=langpair)
         configs[arg] = config
 
     OmegaConf.set_readonly(configs, True)
     return configs
 
 
-def get_config(langpair: str, arg: str) -> DictConfig:
+def get_config(arg: str, langpair: Optional[str] = None) -> DictConfig:
     """Get a configuration designated by arg
 
     Args:
-        langpair: language pair
         arg: configuration type
+        langpair: language pair
     Returns:
         config: configuration related to the arg
     """
-    langpair = normalize_langpair(langpair)
     root_dir = Path(__file__).parent.parent
     config_dir = root_dir / "configs" / arg
     if not config_dir.is_dir():
@@ -78,8 +77,9 @@ def get_config(langpair: str, arg: str) -> DictConfig:
         )
 
     if arg == "model":
-        config_path = config_dir / "transformers.yaml"
+        config_path = config_dir / "transformer-base.yaml"  # TODO: support transformer-big.yaml
     else:
+        langpair = normalize_langpair(langpair)
         config_path = list(config_dir.glob(f"*{langpair}*"))[0]
 
     config = OmegaConf.load(config_path)
@@ -93,3 +93,11 @@ def get_config(langpair: str, arg: str) -> DictConfig:
         )
 
     return config
+
+
+def load_tokenizer(tokenizer_config):
+    tokenizer = SentencePieceBPETokenizer(
+        vocab_file=tokenizer_config.tokenizer_vocab,
+        merges_file=tokenizer_config.tokenizer_merges,
+    )
+    return tokenizer
