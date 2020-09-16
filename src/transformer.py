@@ -1,7 +1,11 @@
 import torch.nn as nn
 
-from .modules import (FeedForwardNetwork, LayerNorm, MultiHeadAttention,
-                      PositionalEncoding)
+from .modules import (
+    FeedForwardNetwork,
+    LayerNorm,
+    MultiHeadAttention,
+    PositionalEncoding,
+)
 from .utils import get_config, get_configs, load_tokenizer
 
 
@@ -10,6 +14,7 @@ class Model(nn.Module):
 
     Attributes:
     """
+
     def __init__(self):
         super().__init__()
         # TODO: embeddings
@@ -24,15 +29,18 @@ class Model(nn.Module):
 class Embeddings(nn.Module):
     """Input embeddings with positional encoding
     """
+
     def __init__(self, langpair):
         super().__init__()
         # TODO: support transformer-base and transformer-big
-        config = get_configs('model', 'tokenizer', langpair=langpair)
+        config = get_configs("model", "tokenizer", langpair=langpair)
         self.dim_model = config.model.dim_model
         self.vocab_size = config.tokenizer.vocab_size
         tokenizer = load_tokenizer(config.tokenizer)
-        padding_idx = tokenizer.token_to_id('<pad>')
-        self.embedding_matrix = nn.Embedding(self.vocab_size, self.dim_model, padding_idx=padding_idx)
+        padding_idx = tokenizer.token_to_id("<pad>")
+        self.embedding_matrix = nn.Embedding(
+            self.vocab_size, self.dim_model, padding_idx=padding_idx
+        )
         self.scale = self.dim_model ** 0.5
         self.max_len = config.model.max_len
         self.positional_encoding = PositionalEncoding(self.max_len, self.dim_model)
@@ -47,9 +55,10 @@ class Embeddings(nn.Module):
 class Encoder(nn.Module):
     """Base class for transformer encoders
     """
+
     def __init__(self):
         super().__init__()
-        self.config = get_config('model')
+        self.config = get_config("model")
         self.num_layers = self.config.num_encoder_layer
         self.embeddings = Embeddings()
         self.mha = MultiHeadAttention(attention_mask=False)
@@ -79,6 +88,7 @@ class Decoder(nn.Module):
     Attributes:
         target_embeddings:
     """
+
     def __init__(self, target_embeddings: nn.Embedding):
         super().__init__()
         self.target_embeddings = target_embeddings

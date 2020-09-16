@@ -4,7 +4,7 @@ import torch
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 
-from .utils import get_configs, read_lines, load_tokenizer
+from .utils import get_configs, load_tokenizer, read_lines
 
 
 class WMT14Dataset(Dataset):
@@ -28,7 +28,9 @@ class WMT14Dataset(Dataset):
     def __len__(self) -> int:
         return len(self.source_lines)
 
-    def __getitem__(self, index: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    def __getitem__(
+        self, index: int
+    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
         source_encoded, source_mask, target_encoded, target_mask, = self.process(
             self.source_lines[index], self.target_lines[index]
         )
@@ -102,7 +104,10 @@ class WMT14Dataset(Dataset):
             torch.tensor(source_encoded),
             torch.tensor(source_mask),
         )
-        target_encoded, target_mask = (torch.tensor(target_encoded), torch.tensor(target_mask))
+        target_encoded, target_mask = (
+            torch.tensor(target_encoded),
+            torch.tensor(target_mask),
+        )
         return source_encoded, source_mask, target_encoded, target_mask
 
 

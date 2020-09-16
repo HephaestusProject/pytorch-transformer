@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import List, Optional
 
-from tokenizers import SentencePieceBPETokenizer
 from omegaconf import DictConfig, OmegaConf
+from tokenizers import SentencePieceBPETokenizer
 
 
 def read_lines(filepath: str) -> List[str]:
@@ -77,7 +77,9 @@ def get_config(arg: str, langpair: Optional[str] = None) -> DictConfig:
         )
 
     if arg == "model":
-        config_path = config_dir / "transformer-base.yaml"  # TODO: support transformer-big.yaml
+        config_path = (
+            config_dir / "transformer-base.yaml"
+        )  # TODO: support transformer-big.yaml
     else:
         langpair = normalize_langpair(langpair)
         config_path = list(config_dir.glob(f"*{langpair}*"))[0]
