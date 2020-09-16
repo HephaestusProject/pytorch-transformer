@@ -29,11 +29,11 @@ class WMT14Dataset(Dataset):
     def __len__(self) -> int:
         return len(self.source_lines)
 
-    def __getitem__(self, index: int) -> Tuple[List[int], List[int]]:
-        source_encoded, target_encoded = self.collate(
+    def __getitem__(self, index: int) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        source_encoded, source_mask, target_encoded, target_mask, = self.process(
             self.source_lines[index], self.target_lines[index]
         )
-        return source_encoded, target_encoded
+        return source_encoded, source_mask, target_encoded, target_mask
 
     def _encode(
         self, source_line: str, target_line: str
@@ -56,12 +56,14 @@ class WMT14Dataset(Dataset):
         target_encoded.append(eos)
         return source_encoded, target_encoded
 
-    def collate(
+    def process(
         self, source_line: str, target_line: str
     ) -> Tuple[
-        torch.Tensor, torch.Tensor
-    ]:  # TODO: try to be more efficient (batch-level collate)
-        """Collate source and target text
+        torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor
+    ]:  # TODO: try to be more efficient (batch-level process)
+        """Process source and target text
+
+        Encode, pad, and mask the original text
 
         Args:
             source_line: raw text in source language
@@ -69,7 +71,9 @@ class WMT14Dataset(Dataset):
 
         Returns:
             source_encoded: padded encodings of source_line
+            source_mask: source_line masking
             target_encoded: padded encodings of target_line
+            target_mask: target_line masking
         """
         max_len = self.configs.model.max_len
         pad = self.tokenizer.token_to_id("<pad>")
@@ -77,29 +81,30 @@ class WMT14Dataset(Dataset):
         source_encoded, target_encoded = self._encode(source_line, target_line)
         if len(source_encoded) >= max_len:
             source_encoded = source_encoded[:max_len]
+            source_mask = [1] * max_len
         else:
-            pad_length = max_len - len(source_encoded)
+            source_length = len(source_encoded)
+            pad_length = max_len - source_length
             source_encoded = source_encoded + [pad] * pad_length
+            source_mask = [1] * source_length + [0] * pad_length
 
         if len(target_encoded) >= max_len:
             target_encoded = target_encoded[:max_len]
+            target_mask = [1] * max_len
         else:
-            pad_length = max_len - len(target_encoded)
+            target_length = len(target_encoded)
+            pad_length = max_len - target_length
             target_encoded = target_encoded + [pad] * pad_length
+            target_mask = [1] * target_length + [0] * pad_length
 
-        assert len(source_encoded) == len(target_encoded)
-        source_encoded, target_encoded = (
+        assert len(source_encoded) == len(source_mask)
+        assert len(target_encoded) == len(target_mask)
+        source_encoded, source_mask = (
             torch.tensor(source_encoded),
-            torch.tensor(target_encoded),
+            torch.tensor(source_mask),
         )
-        return source_encoded, target_encoded
-
-    def load_tokenizer(self):
-        tokenizer = SentencePieceBPETokenizer(
-            vocab_file=self.configs.tokenizer.tokenizer_vocab,
-            merges_file=self.configs.tokenizer.tokenizer_merges,
-        )
-        return tokenizer
+        target_encoded, target_mask = (torch.tensor(target_encoded), torch.tensor(target_mask))
+        return source_encoded, source_mask, target_encoded, target_mask
 
 
 class WMT14DataLoader(LightningDataModule):
