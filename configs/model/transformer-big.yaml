@@ -1,10 +1,10 @@
 max_len: 100  # ref: http://nlp.seas.harvard.edu/2018/04/03/attention.html
-dim_ff: 2048
-dim_model: 512
-dim_q: 512
-dim_k: 512
-dim_v: 512
-num_head: 8
+dim_ff: 4096
+dim_model: 1024
+dim_q: 64
+dim_k: 64
+dim_v: 64
+num_head: 16
 num_encoder_layer: 6
 num_decoder_layer: 6
 residual_dropout: 0.1

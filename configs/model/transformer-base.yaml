@@ -1,13 +1,15 @@
 max_len: 100  # ref: http://nlp.seas.harvard.edu/2018/04/03/attention.html
 dim_ff: 2048
 dim_model: 512
-dim_q: 512
-dim_k: 512
-dim_v: 512
-num_head: 8
+dim_q: 64
+dim_k: 64
+dim_v: 64
+num_heads: 8
 num_encoder_layer: 6
 num_decoder_layer: 6
 residual_dropout: 0.1
+attention_dropout: 0.1
+pe_dropout: 0.1
 
 data_params:
     num_workers: 8
@@ -18,6 +20,5 @@ train_hparams:
     optimizer: adam
     beta_1: 0.9  # activates when optimizer is Adam
     beta_2: 0.98  # activates when optimizer is Adam
-    eps: 1e-9
-    steps: 300000  # big
+    eps: 1e-9  # FIXME: LayerNorm eps?
     steps: 100000
