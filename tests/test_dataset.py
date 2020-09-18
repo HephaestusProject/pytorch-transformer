@@ -43,6 +43,14 @@ def test_dataset_len(langpair, source_lines, target_lines):
 @pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
 def test_dataset_getitem(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
+    for (
+        source_encode_pad_test,
+        source_encode_mask_test,
+        target_encode_pad_test,
+        target_encode_mask_test,
+    ) in ds:
+        assert source_encode_pad_test.size() == source_encode_mask_test.size()
+        assert target_encode_pad_test.size() == target_encode_mask_test.size()
         assert source_encode_pad_test.size()[0] == ds.configs.model.model_params.max_len
         assert target_encode_pad_test.size()[0] == ds.configs.model.model_params.max_len
 
@@ -61,9 +69,17 @@ def test_dataset_encode(langpair, source_lines, target_lines):
 
 
 @pytest.mark.parametrize("langpair, source_lines, target_lines", test_dataset_input)
-def test_dataset_collate(langpair, source_lines, target_lines):
+def test_dataset_process(langpair, source_lines, target_lines):
     ds = WMT14Dataset(langpair, source_lines, target_lines)
     for source_line, target_line in zip(source_lines, target_lines):
+        (
+            source_encode_pad_test,
+            source_encode_mask_test,
+            target_encode_pad_test,
+            target_encode_mask_test,
+        ) = ds.process(source_line, target_line)
+        assert source_encode_pad_test.size() == source_encode_mask_test.size()
+        assert target_encode_pad_test.size() == target_encode_mask_test.size()
         assert source_encode_pad_test.size()[0] == ds.configs.model.model_params.max_len
         assert target_encode_pad_test.size()[0] == ds.configs.model.model_params.max_len
 
