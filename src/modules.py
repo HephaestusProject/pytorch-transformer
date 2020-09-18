@@ -17,7 +17,7 @@ class PositionalEncoding(nn.Module):
     def __init__(self, max_len: int, embedding_dim: int) -> None:
         super().__init__()
         config = get_config("model")
-        self.dropout = nn.Dropout(p=config.pe_dropout)
+        self.dropout = nn.Dropout(p=config.model_params.dropout)
         positional_encoding = torch.zeros(max_len, embedding_dim)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(
             1
@@ -53,10 +53,10 @@ class Attention(nn.Module):
         super().__init__()
         self.attention_mask = attention_mask
         self.config = get_config("model")
-        self.dim_q = self.config.dim_q
-        self.dim_k = self.config.dim_k
-        self.dim_v = self.config.dim_v
-        self.dim_model = self.config.dim_model
+        self.dim_q = self.config.model_params.dim_q
+        self.dim_k = self.config.model_params.dim_k
+        self.dim_v = self.config.model_params.dim_v
+        self.dim_model = self.config.model_params.dim_model
         if attention_mask:
             assert (
                 self.dim_k == self.dim_v
@@ -70,7 +70,6 @@ class Attention(nn.Module):
         self.k_project = nn.Linear(self.dim_model, self.dim_k)
         self.v_project = nn.Linear(self.dim_model, self.dim_v)
         self.scale = self.dim_k ** -0.5
-        self.dropout = nn.Dropout(self.config.attention_dropout)
 
     def forward(self, embeddings: Tensor, mask: Tensor) -> Tensor:
         # TODO: masked-attention in decoder
@@ -83,7 +82,6 @@ class Attention(nn.Module):
         qk = qk.masked_fill(mask == 0, self.config.train_hparams.eps)
         attention_weight = torch.softmax(qk, dim=-1)
         attention = torch.matmul(attention_weight, v)  # (batch_size, max_len, dim_v)
-        attention = self.dropout(attention)
         return attention, attention_weight
 
 
@@ -99,9 +97,9 @@ class MultiHeadAttention(nn.Module):
         self.attention = Attention(attention_mask)
         config = get_config("model")
         self.batch_size = config.train_hparams.batch_size
-        self.dim_model = config.dim_model
-        self.dim_v = config.dim_v
-        self.num_heads = config.num_heads
+        self.dim_model = config.model_params.dim_model
+        self.dim_v = config.model_params.dim_v
+        self.num_heads = config.model_params.num_heads
         assert (self.dim_model // self.num_heads) == self.dim_v
         assert (
             self.dim_model % self.num_heads == 0
@@ -121,8 +119,8 @@ class FeedForwardNetwork(nn.Module):
     def __init__(self):
         super().__init__()
         config = get_config("model")
-        self.dim_model = config.dim_model
-        self.dim_ff = config.dim_ff
+        self.dim_model = config.model_params.dim_model
+        self.dim_ff = config.model_params.dim_ff
         self.linear1 = nn.Linear(self.dim_model, self.dim_ff, bias=True)
         self.ReLU = nn.ReLU()
         self.linear2 = nn.Linear(self.dim_ff, self.dim_model, bias=True)
@@ -138,7 +136,7 @@ class LayerNorm(nn.Module):
     def __init__(self, eps: float = 1e-6):
         super().__init__()
         config = get_config("model")
-        self.dim_model = config.dim_model
+        self.dim_model = config.model_params.dim_model
         self.gamma = nn.Parameter(torch.ones(self.dim_model))
         self.beta = nn.Parameter(torch.zeros(self.dim_model))
         self.eps = eps

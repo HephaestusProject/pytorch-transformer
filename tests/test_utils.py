@@ -33,7 +33,7 @@ test_get_configs_input = [
 
 @pytest.mark.parametrize("langpair, args", test_get_configs_input)
 def test_get_configs(langpair, args):
-    configs = get_configs(langpair, *args)
+    configs = get_configs(*args, langpair=langpair)
     assert isinstance(configs, DictConfig)
     assert len(configs) > 0
 
@@ -49,7 +49,7 @@ test_get_config_input = [
 
 @pytest.mark.parametrize("langpair, arg", test_get_config_input)
 def test_get_config(langpair, arg):
-    config = get_config(langpair, arg)
+    config = get_config(arg, langpair=langpair)
     assert isinstance(config, DictConfig)
     assert len(config) > 0
 
@@ -63,4 +63,4 @@ test_get_config_directory_error_input = [
 @pytest.mark.parametrize("langpair, arg", test_get_config_directory_error_input)
 def test_get_config_directory_error(langpair, arg):
     with pytest.raises(NotADirectoryError):
-        get_config(langpair, arg)
+        get_config(arg, langpair=langpair)

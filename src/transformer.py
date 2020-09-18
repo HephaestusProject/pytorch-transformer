@@ -34,7 +34,7 @@ class Embeddings(nn.Module):
         super().__init__()
         # TODO: support transformer-base and transformer-big
         config = get_configs("model", "tokenizer", langpair=langpair)
-        self.dim_model = config.model.dim_model
+        self.dim_model = config.model.train_params.dim_model
         self.vocab_size = config.tokenizer.vocab_size
         tokenizer = load_tokenizer(config.tokenizer)
         padding_idx = tokenizer.token_to_id("<pad>")
@@ -42,7 +42,7 @@ class Embeddings(nn.Module):
             self.vocab_size, self.dim_model, padding_idx=padding_idx
         )
         self.scale = self.dim_model ** 0.5
-        self.max_len = config.model.max_len
+        self.max_len = config.model.train_params.max_len
         self.positional_encoding = PositionalEncoding(self.max_len, self.dim_model)
 
     def forward(self, x) -> nn.Embedding:  # TODO: type of x

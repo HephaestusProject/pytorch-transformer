@@ -76,7 +76,7 @@ class WMT14Dataset(Dataset):
             target_encoded: padded encodings of target_line
             target_mask: target_line masking
         """
-        max_len = self.configs.model.max_len
+        max_len = self.configs.model.model_params.max_len
         pad = self.tokenizer.token_to_id("<pad>")
 
         source_encoded, target_encoded = self._encode(source_line, target_line)
