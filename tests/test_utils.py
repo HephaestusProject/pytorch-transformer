@@ -24,10 +24,10 @@ def test_read_lines(filepath):
 
 test_get_configs_input = [
     # (langpair, args)
-    ("en-de", ("dataset", "tokenizer", "model")),
+    ("en-de", ("data", "tokenizer", "model")),
     ("ende", ("tokenizer", "model")),
     ("EN-DE", ("tokenizer", "model")),
-    ("ENDE", ("dataset", "tokenizer")),
+    ("ENDE", ("data", "tokenizer")),
 ]
 
 
@@ -40,10 +40,10 @@ def test_get_configs(langpair, args):
 
 test_get_config_input = [
     # (langpair, arg)
-    ("en-de", "dataset"),
+    ("en-de", "data"),
     ("ende", "tokenizer"),
     ("EN-DE", "model"),
-    ("ENDE", "dataset"),
+    ("ENDE", "data"),
 ]
 
 
