@@ -1,5 +1,4 @@
 import pytest  # noqa: E902
-
 import torch
 from torch.utils.data import DataLoader
 
@@ -10,13 +9,11 @@ test_langpair_exception_input = [
     # (langpair, max_length, mode)
     ("en-ko", 100, "train"),
     ("ko-ja", 200, "val"),
-    ("en-ja", 150, "test")
+    ("en-ja", 150, "test"),
 ]
 
 
-@pytest.mark.parametrize(
-    "langpair, max_length, mode", test_langpair_exception_input
-)
+@pytest.mark.parametrize("langpair, max_length, mode", test_langpair_exception_input)
 def test_langpair_exception(langpair, max_length, mode):
     with pytest.raises(NotImplementedError):
         WMT14Dataset(langpair, max_length, mode)
@@ -26,7 +23,7 @@ test_dataset_input = [
     # (langpair, max_length, mode)
     ("example", 100, "train"),
     ("example", 100, "val"),
-    ("example", 100, "test")
+    ("example", 100, "test"),
 ]
 
 
@@ -40,8 +37,8 @@ def test_dataset_len(langpair, max_length, mode):
 def test_dataset_getitem(langpair, max_length, mode):
     ds = WMT14Dataset(langpair, max_length, mode)
     item = ds[0]
-    assert item['source']['padded_token'].size() == item['source']['mask'].size()
-    assert item['target']['padded_token'].size() == item['target']['mask'].size()
+    assert item["source"]["padded_token"].size() == item["source"]["mask"].size()
+    assert item["target"]["padded_token"].size() == item["target"]["mask"].size()
 
 
 @pytest.mark.parametrize("langpair, max_length, mode", test_dataset_input)
@@ -58,7 +55,14 @@ def test_dataset_encode(langpair, max_length, mode):
 @pytest.mark.parametrize("langpair, max_length, mode", test_dataset_input)
 def test_dataset_preprocess(langpair, max_length, mode):
     ds = WMT14Dataset(langpair, max_length, mode)
-    source_padded_tokens_test, source_masks_test, source_lengths_test, target_padded_tokens_test, target_masks_test, target_lengths_test = ds.preprocess()
+    (
+        source_padded_tokens_test,
+        source_masks_test,
+        source_lengths_test,
+        target_padded_tokens_test,
+        target_masks_test,
+        target_lengths_test,
+    ) = ds.preprocess()
     assert source_padded_tokens_test.size() == source_masks_test.size()
     assert target_padded_tokens_test.size() == target_masks_test.size()
 

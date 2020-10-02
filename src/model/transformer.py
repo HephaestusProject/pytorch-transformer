@@ -27,8 +27,7 @@ class Model(nn.Module):
 
 
 class Embeddings(nn.Module):
-    """Input embeddings with positional encoding
-    """
+    """Input embeddings with positional encoding"""
 
     def __init__(self, langpair):
         super().__init__()
@@ -53,8 +52,7 @@ class Embeddings(nn.Module):
 
 
 class Encoder(nn.Module):
-    """Base class for transformer encoders
-    """
+    """Base class for transformer encoders"""
 
     def __init__(self):
         super().__init__()

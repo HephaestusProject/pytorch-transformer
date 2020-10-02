@@ -1,8 +1,8 @@
-from typing import Optional, List
+from typing import List, Optional
 
-from pytorch_lightning import LightningDataModule
 import torch
-from torch.utils.data import Dataset, DataLoader
+from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader, Dataset
 
 from src.data.dataset import WMT14Dataset
 from src.utils import get_configs
@@ -29,13 +29,21 @@ class WMT14DataLoader(LightningDataModule):
         """
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
-            self.train_dataset = WMT14Dataset(self.langpair, max_length=self.max_length, mode='train')
-            self.valid_dataset = WMT14Dataset(self.langpair, max_length=self.max_length, mode='val')
+            self.train_dataset = WMT14Dataset(
+                self.langpair, max_length=self.max_length, mode="train"
+            )
+            self.valid_dataset = WMT14Dataset(
+                self.langpair, max_length=self.max_length, mode="val"
+            )
         # Assign test dataset for use in dataloaders
         if stage == "test" or stage is None:
-            self.test_dataset = WMT14Dataset(self.langpair, max_length=self.max_length, mode='test')
+            self.test_dataset = WMT14Dataset(
+                self.langpair, max_length=self.max_length, mode="test"
+            )
 
-    def batch_by_tokens(self, dataset: Dataset, max_tokens: Optional[int] = None) -> List[torch.Tensor]:
+    def batch_by_tokens(
+        self, dataset: Dataset, max_tokens: Optional[int] = None
+    ) -> List[torch.Tensor]:
         """Create mini-batch tensors by number of tokens
 
         Args:
@@ -48,20 +56,27 @@ class WMT14DataLoader(LightningDataModule):
         Returns:
             indices_batches:
         """
-        max_tokens = 25000 if max_tokens is None else self.configs.model.train_hparams.batch_size
+        max_tokens = (
+            25000 if max_tokens is None else self.configs.model.train_hparams.batch_size
+        )
 
         start_idx = 0
         source_sample_lens, target_sample_lens = [], []
         indices_batches = []
         for end_idx in range(len(dataset)):
-            source_sample_lens.append(dataset[end_idx]['source']['length'])
-            target_sample_lens.append(dataset[end_idx]['target']['length'])
+            source_sample_lens.append(dataset[end_idx]["source"]["length"])
+            target_sample_lens.append(dataset[end_idx]["target"]["length"])
             # when batch is full
-            if sum(source_sample_lens) > max_tokens or sum(target_sample_lens) > max_tokens:
+            if (
+                sum(source_sample_lens) > max_tokens
+                or sum(target_sample_lens) > max_tokens
+            ):
                 indices_batch = torch.arange(start_idx, end_idx)
                 indices_batches.append(indices_batch)
                 start_idx = end_idx
-                source_sample_lens, target_sample_lens = [source_sample_lens[-1]], [target_sample_lens[-1]]  # end_idx is not included
+                source_sample_lens, target_sample_lens = [source_sample_lens[-1]], [
+                    target_sample_lens[-1]
+                ]  # end_idx is not included
             # when iteration ends
             elif end_idx == len(dataset):
                 indices_batch = torch.arange(start_idx, end_idx)
@@ -74,8 +89,8 @@ class WMT14DataLoader(LightningDataModule):
         return DataLoader(
             self.train_dataset,
             batch_sampler=batch_sampler,
-            shuffle=True,
-            drop_last=True,
+            shuffle=False,
+            drop_last=False,
             num_workers=self.configs.model.data_params.num_workers,
         )
 
