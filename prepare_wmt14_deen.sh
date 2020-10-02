@@ -3,7 +3,7 @@
 # Download WMT14 parallel corpus for de-en Transformers.
 # Note that testset used in "Attention is all you need" is newstest2013 in development corpus.
 
-DOWNLOAD_PATH='dataset'
+DOWNLOAD_PATH='corpus'
 
 # 1. Download corpus from https://www.statmt.org/wmt14/translation-task.html
 
@@ -13,7 +13,7 @@ wget https://www.statmt.org/wmt13/training-parallel-commoncrawl.tgz --directory-
 wget https://www.statmt.org/wmt14/training-parallel-nc-v9.tgz --directory-prefix ${DOWNLOAD_PATH}
 
 ## 1.2 Validation corpus
-wget https://www.statmt.org/wmt14/dev.tgz --directory-prefix ${DOWNLAOD_PATH}
+wget https://www.statmt.org/wmt14/dev.tgz --directory-prefix ${DOWNLOAD_PATH}
 
 
 # 2. Extract corpus
