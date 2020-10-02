@@ -3,11 +3,11 @@ from pathlib import Path
 from omegaconf import OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 
-root_dir = Path("..")
+root_dir = Path("../..")
 config_dir = root_dir / "configs"
-dataset_config = OmegaConf.load(config_dir / "dataset" / "wmt14.de-en.yaml")
+dataset_config = OmegaConf.load(config_dir / "data" / "wmt14.en-de.yaml")
 tokenizer_config = OmegaConf.load(
-    config_dir / "tokenizer" / "sentencepiece_bpe_wmt14_deen.yaml"
+    config_dir / "tokenizer" / "sentencepiece_bpe_wmt14_en-de.yaml"
 )
 
 

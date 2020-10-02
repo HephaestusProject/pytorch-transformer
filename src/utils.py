@@ -88,10 +88,10 @@ def get_config(arg: str, langpair: Optional[str] = None) -> DictConfig:
 
     if arg == "tokenizer":
         config.tokenizer_vocab = str(
-            root_dir / "tokenizer" / (config.tokenizer_name + "-vocab.json")
+            root_dir / "src" / "tokenizer" / (config.tokenizer_name + "-vocab.json")
         )
         config.tokenizer_merges = str(
-            root_dir / "tokenizer" / (config.tokenizer_name + "-merges.txt")
+            root_dir / "src" / "tokenizer" / (config.tokenizer_name + "-merges.txt")
         )
 
     return config
