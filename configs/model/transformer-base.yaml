@@ -14,7 +14,7 @@ data_params:
     num_workers: 8
 
 train_hparams:
-    batch_size: 12000
+    batch_size: 25000  # by num_tokens
     warmup_steps: 4000
     optimizer: adam
     beta_1: 0.9  # activates when optimizer is Adam
