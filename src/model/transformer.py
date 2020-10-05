@@ -1,44 +1,18 @@
 import torch.nn as nn
 
-from .modules import (
-    FeedForwardNetwork,
-    LayerNorm,
-    MultiHeadAttention,
-    PositionalEncoding,
-)
-from .utils import get_config, get_configs, load_tokenizer
+from src.utils import Config
 
 
 class Model(nn.Module):
     """Transformer Model
 
-    Attributes:
-    """
-
-    def __init__(self):
+    def __init__(self, langpair: str, is_base: bool = True) -> None:
         super().__init__()
-        # TODO: embeddings
-        # TODO: Encoder
-        # TODO: Decoder
-        return None
-
-    def forward(self):
-        return None
-
-
-class Embeddings(nn.Module):
-    """Input embeddings with positional encoding"""
-
-    def __init__(self, langpair):
-        super().__init__()
-        # TODO: support transformer-base and transformer-big
-        config = get_configs("model", "tokenizer", langpair=langpair)
-        self.dim_model = config.model.train_params.dim_model
-        self.vocab_size = config.tokenizer.vocab_size
-        tokenizer = load_tokenizer(config.tokenizer)
-        padding_idx = tokenizer.token_to_id("<pad>")
-        self.embedding_matrix = nn.Embedding(
-            self.vocab_size, self.dim_model, padding_idx=padding_idx
+        configs = Config()
+        configs.add_tokenizer(langpair)
+        configs.add_model(is_base)
+        dim_model = configs.model.model_params.dim_model
+        vocab_size = configs.tokenizer.vocab_size
         )
         self.scale = self.dim_model ** 0.5
         self.max_len = config.model.train_params.max_len

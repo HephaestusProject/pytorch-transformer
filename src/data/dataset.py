@@ -5,7 +5,7 @@ import torch
 from torch.utils.data import Dataset
 
 from src.data.data_utils import filter_by_length, pad_and_mask_sequence
-from src.utils import get_configs, load_tokenizer, read_lines
+from src.utils import Config, load_tokenizer, read_lines
 
 
 class WMT14Dataset(Dataset):
@@ -19,8 +19,9 @@ class WMT14Dataset(Dataset):
     def __init__(self, langpair: str, max_length: int, mode: str) -> None:
         super().__init__()
         root_dir = Path(__file__).parents[2]
-        self.configs = get_configs("data", "tokenizer", langpair=langpair)
-        self.tokenizer = load_tokenizer(self.configs.tokenizer)
+        self.configs = Config()
+        self.configs.add_data(langpair)
+        self.tokenizer = load_tokenizer(langpair)
         self.max_length = max_length
         self.data_config = self.configs.data  # TODO: inference
         if mode == "train":

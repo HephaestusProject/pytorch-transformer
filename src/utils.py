@@ -1,5 +1,5 @@
-from pathlib import Path
-from typing import List, Optional
+from pathlib import Path, PosixPath
+from typing import List
 
 from omegaconf import DictConfig, OmegaConf
 from tokenizers import SentencePieceBPETokenizer
@@ -41,65 +41,58 @@ def normalize_langpair(langpair: str) -> str:
     return langpair_norm
 
 
-def get_configs(*args: str, langpair: Optional[str] = None) -> DictConfig:
-    """Get all configurations regarding model training
+def load_tokenizer(langpair: str) -> SentencePieceBPETokenizer:
+    if langpair in ["en-de", "de-en", "ende", "deen", "ENDE", "EN-DE"]:
+        langpair = "deen"
 
-    Args:
-        args: configuration types (e.g., tokenizer, dataset, model)
-        langpair: language pair for a translation task
-    Returns:
-        configs: a single configuration that merged dataset, tokenizer, and model configurations
-    """
-    configs = OmegaConf.create()
+    tokenizer_dir = Path(__file__).parent.parent / "src" / "tokenizer"
+    vocab_filepath = (
+        tokenizer_dir / f"sentencepiece_bpe_wmt14_{langpair}.tokenizer-vocab.json"
+    )
+    merges_filepath = (
+        tokenizer_dir / f"sentencepiece_bpe_wmt14_{langpair}.tokenizer-merges.txt"
+    )
 
-    for arg in args:
-        config = get_config(arg, langpair=langpair)
-        configs[arg] = config
-
-    OmegaConf.set_readonly(configs, True)
-    return configs
-
-
-def get_config(arg: str, langpair: Optional[str] = None) -> DictConfig:
-    """Get a configuration designated by arg
-
-    Args:
-        arg: configuration type
-        langpair: language pair
-    Returns:
-        config: configuration related to the arg
-    """
-    root_dir = Path(__file__).parent.parent
-    config_dir = root_dir / "configs" / arg
-    if not config_dir.is_dir():
-        raise NotADirectoryError(
-            f"{config_dir} does not exists. Check if configuration saved directory exists."
-        )
-
-    if arg == "model":
-        config_path = (
-            config_dir / "transformer-base.yaml"
-        )  # TODO: support transformer-big.yaml
-    else:
-        langpair = normalize_langpair(langpair)
-        config_path = list(config_dir.glob(f"*{langpair}*"))[0]
-
-    config = OmegaConf.load(config_path)
-
-    if arg == "tokenizer":
-        config.tokenizer_vocab = str(
-            root_dir / "src" / "tokenizer" / (config.tokenizer_name + "-vocab.json")
-        )
-        config.tokenizer_merges = str(
-            root_dir / "src" / "tokenizer" / (config.tokenizer_name + "-merges.txt")
-        )
-
-    return config
-
-
-def load_tokenizer(tokenizer_config):
     tokenizer = SentencePieceBPETokenizer(
-        vocab_file=tokenizer_config.tokenizer_vocab,
-        merges_file=tokenizer_config.tokenizer_merges,
+        vocab_file=str(vocab_filepath),
+        merges_file=str(merges_filepath),
     )
     return tokenizer
+
+
+class Config:
+    """Load configuration files via OmegaConf"""
+
+    def __init__(self) -> None:
+        root_dir = Path(__file__).parent.parent
+        self.config_dir: PosixPath = root_dir / "configs"
+        self.configs: DictConfig = OmegaConf.create()
+
+    def add_data(self, langpair: str) -> None:
+        langpair = normalize_langpair(langpair)
+        data_config = self.config_dir / "data" / f"wmt14.{langpair}.yaml"
+        self.configs.update({"data": OmegaConf.load(data_config)})
+
+    def add_tokenizer(self, langpair: str) -> None:
+        langpair = normalize_langpair(langpair)
+        tokenizer_config = (
+            self.config_dir / "tokenizer" / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
+        )
+        self.configs.update({"tokenizer": OmegaConf.load(tokenizer_config)})
+
+    def add_model(self, is_base: bool = True) -> None:
+        model_type = "base" if is_base else "big"
+        model_config = self.config_dir / "model" / f"transformer-{model_type}.yaml"
+        self.configs.update({"model": OmegaConf.load(model_config)})
+
+    @property
+    def data(self) -> DictConfig:
+        return self.configs.data
+
+    @property
+    def tokenizer(self) -> DictConfig:
+        return self.configs.tokenizer
+
+    @property
+    def model(self) -> DictConfig:
+        return self.configs.model

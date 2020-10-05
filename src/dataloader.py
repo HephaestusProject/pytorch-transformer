@@ -5,7 +5,7 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 
 from src.data.dataset import WMT14Dataset
-from src.utils import get_configs
+from src.utils import Config
 
 
 class WMT14DataLoader(LightningDataModule):
@@ -15,9 +15,11 @@ class WMT14DataLoader(LightningDataModule):
         langpair: language pair to translate
     """
 
-    def __init__(self, langpair: str) -> None:
+    def __init__(self, langpair: str, is_base: bool = True) -> None:
         super().__init__()
-        self.configs = get_configs("data", "model", langpair=langpair)
+        self.configs = Config()
+        self.configs.add_data(langpair)
+        self.configs.add_model(is_base)
         self.langpair = langpair
         self.max_length = self.configs.model.model_params.max_len
 

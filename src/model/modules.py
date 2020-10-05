@@ -1,9 +1,10 @@
 import math
+from typing import Optional, Tuple
 
 import torch
 from torch import Tensor, nn
 
-from .utils import get_config
+from src.utils import Config, load_tokenizer
 
 
 class PositionalEncoding(nn.Module):
@@ -14,10 +15,12 @@ class PositionalEncoding(nn.Module):
         embedding_dim: embedding dimension of the given token
     """
 
-    def __init__(self, max_len: int, embedding_dim: int) -> None:
+    def __init__(self, max_len: int, embedding_dim: int, is_base: bool = True) -> None:
         super().__init__()
-        config = get_config("model")
-        self.dropout = nn.Dropout(p=config.model_params.dropout)
+        config = Config()
+        config.add_model(is_base)
+
+        self.dropout = nn.Dropout(p=config.model.model_params.dropout)
         positional_encoding = torch.zeros(max_len, embedding_dim)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(
             1
@@ -49,15 +52,16 @@ class Attention(nn.Module):
         attention_mask: whether to mask attention or not
     """
 
-    def __init__(self, attention_mask: bool = False) -> None:
+    def __init__(self, masked_attention: bool = False, is_base: bool = True) -> None:
         super().__init__()
-        self.attention_mask = attention_mask
-        self.config = get_config("model")
-        self.dim_q = self.config.model_params.dim_q
-        self.dim_k = self.config.model_params.dim_k
-        self.dim_v = self.config.model_params.dim_v
-        self.dim_model = self.config.model_params.dim_model
-        if attention_mask:
+        self.masked_attention = masked_attention
+        self.config = Config()
+        self.config.add_model(is_base)
+
+        self.dim_q = self.config.model.model_params.dim_q
+        self.dim_k = self.config.model.model_params.dim_k
+        self.dim_v = self.config.model.model_params.dim_v
+        self.dim_model = self.config.model.model_params.dim_model
             assert (
                 self.dim_k == self.dim_v
             ), "masked self-attention requires key, and value to be of the same size"
@@ -92,14 +96,15 @@ class MultiHeadAttention(nn.Module):
         attention_mask: whether to mask attention or not
     """
 
-    def __init__(self, attention_mask: bool = False):
+    def __init__(self, masked_attention: bool = False, is_base: bool = True):
         super().__init__()
-        self.attention = Attention(attention_mask)
-        config = get_config("model")
-        self.batch_size = config.train_hparams.batch_size
-        self.dim_model = config.model_params.dim_model
-        self.dim_v = config.model_params.dim_v
-        self.num_heads = config.model_params.num_heads
+        self.attention = Attention(masked_attention)
+        config = Config()
+        config.add_model(is_base)
+        self.batch_size = config.model.train_hparams.batch_size
+        self.dim_model = config.model.model_params.dim_model
+        self.dim_v = config.model.model_params.dim_v
+        self.num_heads = config.model.model_params.num_heads
         assert (self.dim_model // self.num_heads) == self.dim_v
         assert (
             self.dim_model % self.num_heads == 0
@@ -116,11 +121,12 @@ class MultiHeadAttention(nn.Module):
 
 
 class FeedForwardNetwork(nn.Module):
-    def __init__(self):
+    def __init__(self, is_base: bool = True):
         super().__init__()
-        config = get_config("model")
-        self.dim_model = config.model_params.dim_model
-        self.dim_ff = config.model_params.dim_ff
+        config = Config()
+        config.add_model(is_base)
+        self.dim_model = config.model.model_params.dim_model
+        self.dim_ff = config.model.model_params.dim_ff
         self.linear1 = nn.Linear(self.dim_model, self.dim_ff, bias=True)
         self.ReLU = nn.ReLU()
         self.linear2 = nn.Linear(self.dim_ff, self.dim_model, bias=True)
@@ -133,10 +139,11 @@ class FeedForwardNetwork(nn.Module):
 
 
 class LayerNorm(nn.Module):
-    def __init__(self, eps: float = 1e-6):
+    def __init__(self, is_base: bool = True, eps: float = 1e-6):
         super().__init__()
-        config = get_config("model")
-        self.dim_model = config.model_params.dim_model
+        config = Config()
+        config.add_model(is_base)
+        self.dim_model = config.model.model_params.dim_model
         self.gamma = nn.Parameter(torch.ones(self.dim_model))
         self.beta = nn.Parameter(torch.zeros(self.dim_model))
         self.eps = eps
