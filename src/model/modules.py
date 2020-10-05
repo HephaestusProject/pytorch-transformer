@@ -45,11 +45,50 @@ class PositionalEncoding(nn.Module):
         return embeddings
 
 
+class Embeddings(nn.Module):
+    """Input embeddings with positional encoding"""
+
+    def __init__(self, langpair: str, is_base: bool = True) -> None:
+        super().__init__()
+        # TODO: support transformer-base and transformer-big
+        configs = Config()
+        configs.add_model(is_base).add_tokenizer(langpair)
+        tokenizer = load_tokenizer(langpair)
+        padding_idx = tokenizer.token_to_id("<pad>")
+
+        self.dim_model = configs.model.model_params.dim_model
+        self.vocab_size = configs.tokenizer.vocab_size
+        self.embedding_matrix = nn.Embedding(
+            self.vocab_size, self.dim_model, padding_idx=padding_idx
+        )
+        self.scale = self.dim_model ** 0.5
+        self.max_len = configs.model.model_params.max_len
+        self.positional_encoding = PositionalEncoding(self.max_len, self.dim_model)
+
+    def forward(self, source_tokens: torch.Tensor) -> nn.Embedding:
+        """Get embedding matrix for source tokens
+
+        Args:
+            source_tokens: (batch_size, max_len)
+
+        Return:
+            embeddings: (batch_size, max_len, dim_model)
+        """
+        embeddings = self.embedding_matrix(
+            source_tokens
+        )  # (batch_size, max_len, dim_model)
+        embeddings *= self.scale
+        embeddings = self.positional_encoding(
+            embeddings
+        )  # (batch_size, max_len, dim_model)
+        return embeddings
+
+
 class Attention(nn.Module):
     """Compute scaled-dot product attention of Transformer
 
     Attributes:
-        attention_mask: whether to mask attention or not
+        masked_attention: whether to mask attention or not
     """
 
     def __init__(self, masked_attention: bool = False, is_base: bool = True) -> None:
@@ -62,6 +101,7 @@ class Attention(nn.Module):
         self.dim_k = self.config.model.model_params.dim_k
         self.dim_v = self.config.model.model_params.dim_v
         self.dim_model = self.config.model.model_params.dim_model
+        if self.masked_attention:
             assert (
                 self.dim_k == self.dim_v
             ), "masked self-attention requires key, and value to be of the same size"
@@ -75,15 +115,46 @@ class Attention(nn.Module):
         self.v_project = nn.Linear(self.dim_model, self.dim_v)
         self.scale = self.dim_k ** -0.5
 
-    def forward(self, embeddings: Tensor, mask: Tensor) -> Tensor:
-        # TODO: masked-attention in decoder
-        q = self.q_project(embeddings)  # (batch_size, max_len, dim_q)
-        k = self.k_project(embeddings)  # (batch_size, max_len, dim_k)
-        v = self.v_project(embeddings)  # (batch_size, max_len, dim_v)
+    def forward(
+        self,
+        query: Tensor,
+        key: Tensor,
+        value: Tensor,
+        attention_mask: Optional[Tensor] = None,
+    ) -> Tuple[Tensor, Tensor]:
+        """
+        Args:
+            query: query embedding (batch_size, max_len, dim_model)
+            key: key embedding (batch_size, max_len, dim_model)
+            value: value embedding (batch_size, max_len, dim_model)
+            attention_mask: used to implement masked_attention (batch_size, max_len, max_len)
+        """
+        if self.masked_attention:
+            assert (
+                key == value
+            ), "masked self-attention requires key, and value to be of the same"
+            assert (
+                attention_mask is not None
+            ), "masked self-attention requires attention mask"
+        else:
+            assert (
+                query == key == value
+            ), "self-attention requires query, key, and value to be of the same"
+
+        q = self.q_project(query)  # (batch_size, max_len, dim_q)
+        k = self.k_project(key)  # (batch_size, max_len, dim_k)
+        v = self.v_project(value)  # (batch_size, max_len, dim_v)
+
         qk = (
             torch.bmm(q, k.transpose(1, 2)) * self.scale
         )  # (batch_size, max_len, max_len)
-        qk = qk.masked_fill(mask == 0, self.config.train_hparams.eps)
+        qk = qk.masked_fill(qk == 0, self.config.model.train_hparams.eps)
+
+        if self.masked_attention:
+            qk = qk.masked_fill(
+                attention_mask == 0, self.config.model.train_hparams.eps
+            )
+
         attention_weight = torch.softmax(qk, dim=-1)
         attention = torch.matmul(attention_weight, v)  # (batch_size, max_len, dim_v)
         return attention, attention_weight
@@ -93,7 +164,7 @@ class MultiHeadAttention(nn.Module):
     """MultiHeadAttention of the Transformer
 
     Attributes:
-        attention_mask: whether to mask attention or not
+        masked_attention: whether to mask attention or not
     """
 
     def __init__(self, masked_attention: bool = False, is_base: bool = True):
@@ -111,8 +182,24 @@ class MultiHeadAttention(nn.Module):
         ), "embed_dim must be divisible by num_heads"
         self.linear = nn.Linear(self.num_heads * self.dim_v, self.dim_model)
 
-    def forward(self, embeddings: Tensor, mask: Tensor) -> Tensor:
-        heads = [self.attention(embeddings, mask)[0] for h in range(self.num_heads)]
+    def forward(
+        self,
+        query: Tensor,
+        key: Tensor,
+        value: Tensor,
+        attention_mask: Optional[Tensor] = None,
+    ) -> Tensor:
+        """
+        Args:
+            query: query embedding (batch_size, max_len, dim_model)
+            key: key embedding (batch_size, max_len, dim_model)
+            value: value embedding (batch_size, max_len, dim_model)
+            attention_mask: used to implement masked_attention (batch_size, max_len, max_len)
+        """
+        heads = [
+            self.attention(query, key, value, attention_mask)[0]
+            for h in range(self.num_heads)
+        ]
         multihead = torch.cat(
             heads, dim=-1
         )  # (batch_size, max_len, dim_model * num_heads)
