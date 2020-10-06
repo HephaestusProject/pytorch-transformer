@@ -56,7 +56,7 @@ class Embeddings(nn.Module):
         tokenizer = load_tokenizer(langpair)
         padding_idx = tokenizer.token_to_id("<pad>")
 
-        self.dim_model = configs.model.model_params.dim_model
+        self.dim_model: int = configs.model.model_params.dim_model
         self.vocab_size = configs.tokenizer.vocab_size
         self.embedding_matrix = nn.Embedding(
             self.vocab_size, self.dim_model, padding_idx=padding_idx
@@ -97,10 +97,10 @@ class Attention(nn.Module):
         self.config = Config()
         self.config.add_model(is_base)
 
-        self.dim_q = self.config.model.model_params.dim_q
-        self.dim_k = self.config.model.model_params.dim_k
-        self.dim_v = self.config.model.model_params.dim_v
-        self.dim_model = self.config.model.model_params.dim_model
+        self.dim_q: int = self.config.model.model_params.dim_q
+        self.dim_k: int = self.config.model.model_params.dim_k
+        self.dim_v: int = self.config.model.model_params.dim_v
+        self.dim_model: int = self.config.model.model_params.dim_model
         if self.masked_attention:
             assert (
                 self.dim_k == self.dim_v
@@ -173,8 +173,8 @@ class MultiHeadAttention(nn.Module):
         config = Config()
         config.add_model(is_base)
         self.batch_size = config.model.train_hparams.batch_size
-        self.dim_model = config.model.model_params.dim_model
-        self.dim_v = config.model.model_params.dim_v
+        self.dim_model: int = config.model.model_params.dim_model
+        self.dim_v: int = config.model.model_params.dim_v
         self.num_heads = config.model.model_params.num_heads
         assert (self.dim_model // self.num_heads) == self.dim_v
         assert (
@@ -212,8 +212,8 @@ class FeedForwardNetwork(nn.Module):
         super().__init__()
         config = Config()
         config.add_model(is_base)
-        self.dim_model = config.model.model_params.dim_model
-        self.dim_ff = config.model.model_params.dim_ff
+        self.dim_model: int = config.model.model_params.dim_model
+        self.dim_ff: int = config.model.model_params.dim_ff
         self.linear1 = nn.Linear(self.dim_model, self.dim_ff, bias=True)
         self.ReLU = nn.ReLU()
         self.linear2 = nn.Linear(self.dim_ff, self.dim_model, bias=True)
@@ -230,7 +230,7 @@ class LayerNorm(nn.Module):
         super().__init__()
         config = Config()
         config.add_model(is_base)
-        self.dim_model = config.model.model_params.dim_model
+        self.dim_model: int = config.model.model_params.dim_model
         self.gamma = nn.Parameter(torch.ones(self.dim_model))
         self.beta = nn.Parameter(torch.zeros(self.dim_model))
         self.eps = eps
