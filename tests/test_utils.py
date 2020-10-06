@@ -1,10 +1,9 @@
 from pathlib import Path
 
-from omegaconf import DictConfig
 import pytest  # noqa: F401
+from omegaconf import DictConfig
 
 from src.utils import Config, read_lines
-
 
 test_read_lines_input = [
     # (filepath)
@@ -26,7 +25,7 @@ def test_read_lines(filepath):
 test_data_tokenizer_config_input = [
     # (langpair)
     ("en-de"),
-    ("ENDE")
+    ("ENDE"),
 ]
 
 
