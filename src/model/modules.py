@@ -52,7 +52,8 @@ class Embeddings(nn.Module):
         super().__init__()
         # TODO: support transformer-base and transformer-big
         configs = Config()
-        configs.add_model(is_base).add_tokenizer(langpair)
+        configs.add_model(is_base)
+        configs.add_tokenizer(langpair)
         tokenizer = load_tokenizer(langpair)
         padding_idx = tokenizer.token_to_id("<pad>")
 

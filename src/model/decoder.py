@@ -24,9 +24,9 @@ class DecoderLayer(nn.Module):
 
         self.masked_mha = MultiHeadAttention(masked_attention=True)
         self.mha = MultiHeadAttention(masked_attention=False)
-        self.ln = LayerNorm(self.config.train_hparams.eps)
+        self.ln = LayerNorm(self.config.model.train_hparams.eps)
         self.ffn = FeedForwardNetwork()
-        self.residual_dropout = nn.Dropout(p=self.config.model_params.dropout)
+        self.residual_dropout = nn.Dropout(p=self.config.model.model_params.dropout)
 
     def attention_mask(self, batch_size: int, seq_len: int) -> Tensor:
         attention_shape = (batch_size, seq_len, seq_len)
@@ -76,7 +76,7 @@ class Decoder(nn.Module):
         self.embedding = Embeddings(langpair)
         self.config = Config()
         self.config.add_model(is_base)
-        self.num_layers = self.config.model_params.num_decoder_layer
+        self.num_layers = self.config.model.model_params.num_decoder_layer
         self.decoder_layers = get_clones(DecoderLayer(), self.num_layers)
 
     def forward(
