@@ -54,8 +54,8 @@ def load_tokenizer(langpair: str) -> SentencePieceBPETokenizer:
     )
 
     tokenizer = SentencePieceBPETokenizer(
-        vocab_file=str(vocab_filepath),
-        merges_file=str(merges_filepath),
+        vocab=str(vocab_filepath),
+        merges=str(merges_filepath),
     )
     return tokenizer
 
