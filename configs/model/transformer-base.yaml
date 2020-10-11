@@ -15,9 +15,9 @@ data_params:
 
 train_hparams:
     batch_size: 25000  # by num_tokens
+    steps: 100000
     warmup_steps: 4000
     optimizer: adam
     beta_1: 0.9  # activates when optimizer is Adam
     beta_2: 0.98  # activates when optimizer is Adam
-    eps: 1e-9  # FIXME: LayerNorm eps?
-    steps: 100000
+    eps: 1e-9  # activates when optimizer is Adam
