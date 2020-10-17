@@ -36,10 +36,10 @@ class EncoderLayer(nn.Module):
         self.config.add_model(is_base)
 
         self.mha = MultiHeadAttention(masked_attention=False)
-        self.attention_dropout = nn.Dropout(p=self.config.model_params.dropout)
-        self.ln = LayerNorm(self.config.train_hparams.eps)
+        self.attention_dropout = nn.Dropout(p=self.config.model.model_params.dropout)
+        self.ln = LayerNorm(self.config.model.train_hparams.eps)
         self.ffn = FeedForwardNetwork()
-        self.residual_dropout = nn.Dropout(p=self.config.model_params.dropout)
+        self.residual_dropout = nn.Dropout(p=self.config.model.model_params.dropout)
 
     def forward(self, source_emb: Tensor, source_mask: Tensor) -> Tuple[Tensor, Tensor]:
         source_emb = source_emb + self.mha(
@@ -64,7 +64,7 @@ class Encoder(nn.Module):
         self.embedding = Embeddings(langpair)
         self.config = Config()
         self.config.add_model(is_base)
-        self.num_layers = self.config.model_params.num_encoder_layer
+        self.num_layers = self.config.model.model_params.num_encoder_layer
         self.encoder_layers = get_clones(EncoderLayer(), self.num_layers)
 
     def forward(self, source_tokens: Tensor, source_mask: Tensor) -> NamedTuple:
