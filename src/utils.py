@@ -1,7 +1,8 @@
-from pathlib import Path
+from pathlib import Path, PosixPath
 from typing import List
 
 from omegaconf import DictConfig, OmegaConf
+from tokenizers import SentencePieceBPETokenizer
 
 
 def read_lines(filepath: str) -> List[str]:
@@ -40,56 +41,58 @@ def normalize_langpair(langpair: str) -> str:
     return langpair_norm
 
 
-def get_configs(langpair: str, *args: str) -> DictConfig:
-    """Get all configurations regarding model training
+def load_tokenizer(langpair: str) -> SentencePieceBPETokenizer:
+    if langpair in ["en-de", "de-en", "ende", "deen", "ENDE", "EN-DE"]:
+        langpair = "deen"
 
-    Args:
-        langpair: language pair to train transformer
-        args: configuration types (e.g., tokenizer, dataset, model)
-    Returns:
-        configs: a single configuration that merged dataset, tokenizer, and model configurations
-    """
-    langpair = normalize_langpair(langpair)
-    configs = OmegaConf.create()
+    tokenizer_dir = Path(__file__).parent.parent / "src" / "tokenizer"
+    vocab_filepath = (
+        tokenizer_dir / f"sentencepiece_bpe_wmt14_{langpair}.tokenizer-vocab.json"
+    )
+    merges_filepath = (
+        tokenizer_dir / f"sentencepiece_bpe_wmt14_{langpair}.tokenizer-merges.txt"
+    )
 
-    for arg in args:
-        config = get_config(langpair, arg)
-        configs[arg] = config
-
-    OmegaConf.set_readonly(configs, True)
-    return configs
+    tokenizer = SentencePieceBPETokenizer(
+        vocab_file=str(vocab_filepath),
+        merges_file=str(merges_filepath),
+    )
+    return tokenizer
 
 
-def get_config(langpair: str, arg: str) -> DictConfig:
-    """Get a configuration designated by arg
+class Config:
+    """Load configuration files via OmegaConf"""
 
-    Args:
-        langpair: language pair
-        arg: configuration type
-    Returns:
-        config: configuration related to the arg
-    """
-    langpair = normalize_langpair(langpair)
-    root_dir = Path(__file__).parent.parent
-    config_dir = root_dir / "configs" / arg
-    if not config_dir.is_dir():
-        raise NotADirectoryError(
-            f"{config_dir} does not exists. Check if configuration saved directory exists."
+    def __init__(self) -> None:
+        root_dir = Path(__file__).parent.parent
+        self.config_dir: PosixPath = root_dir / "configs"
+        self.configs: DictConfig = OmegaConf.create()
+
+    def add_data(self, langpair: str) -> None:
+        langpair = normalize_langpair(langpair)
+        data_config = self.config_dir / "data" / f"wmt14.{langpair}.yaml"
+        self.configs.update({"data": OmegaConf.load(data_config)})
+
+    def add_tokenizer(self, langpair: str) -> None:
+        langpair = normalize_langpair(langpair)
+        tokenizer_config = (
+            self.config_dir / "tokenizer" / f"sentencepiece_bpe_wmt14_{langpair}.yaml"
         )
+        self.configs.update({"tokenizer": OmegaConf.load(tokenizer_config)})
 
-    if arg == "model":
-        config_path = config_dir / "transformers.yaml"
-    else:
-        config_path = list(config_dir.glob(f"*{langpair}*"))[0]
+    def add_model(self, is_base: bool = True) -> None:
+        model_type = "base" if is_base else "big"
+        model_config = self.config_dir / "model" / f"transformer-{model_type}.yaml"
+        self.configs.update({"model": OmegaConf.load(model_config)})
 
-    config = OmegaConf.load(config_path)
+    @property
+    def data(self) -> DictConfig:
+        return self.configs.data
 
-    if arg == "tokenizer":
-        config.tokenizer_vocab = str(
-            root_dir / "tokenizer" / (config.tokenizer_name + "-vocab.json")
-        )
-        config.tokenizer_merges = str(
-            root_dir / "tokenizer" / (config.tokenizer_name + "-merges.txt")
-        )
+    @property
+    def tokenizer(self) -> DictConfig:
+        return self.configs.tokenizer
 
-    return config
+    @property
+    def model(self) -> DictConfig:
+        return self.configs.model

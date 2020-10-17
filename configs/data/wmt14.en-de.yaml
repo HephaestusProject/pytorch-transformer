@@ -1,0 +1,13 @@
+name: wmt14.deen
+source_lang: en
+target_lang: de
+
+# Path must be synchronized with prepare_wmt14_deen.sh result
+# Drop variable interpolation due to omegaconf issue  (ref: https://github.com/omry/omegaconf/issues/369)
+path:
+    source_train: corpus/wmt14.deen.train.norm.en
+    source_dev: corpus/wmt14.deen.dev.norm.en
+    source_test: corpus/wmt14.deen.test.norm.en
+    target_train: corpus/wmt14.deen.train.norm.de
+    target_dev: corpus/wmt14.deen.dev.norm.de
+    target_test: corpus/wmt14.deen.test.norm.de

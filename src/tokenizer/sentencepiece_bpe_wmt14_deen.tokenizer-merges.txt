@@ -11569,8 +11569,8 @@ aus e,
 ▁R ock
 ▁reserv ation
 ▁serious ly
-▁( )
 ▁pl ug
+▁( )
 ▁spe zial
 ▁bl ue
 ▁l atter
@@ -11620,11 +11620,11 @@ ent er
 ▁ho her
 ▁we ight
 ▁caus es
-▁ )
 ▁wh atever
 ▁( 5
 ▁decision -m
 ettbewer bs
+▁ )
 ▁manufact uring
 ▁beginn t
 at r
