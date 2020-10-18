@@ -11,7 +11,7 @@ from torch import nn
 
 from src.dataloader import WMT14DataLoader
 from src.model.transformer import Transformer
-from src.utils import Config, get_device
+from src.utils import Config
 
 os.environ["TOKENIZERS_PARALLELISM"] = "false"  # disabling parallelism to avoid deadlocks
 
@@ -40,9 +40,6 @@ def train(langpair: str, model_type: str):
     for p in model.parameters():
         if p.dim() > 1:
             nn.init.xavier_uniform_(p)
-    if torch.cuda.is_initialized():
-        device = get_device()
-        model.to(device)
 
     dataloader = WMT14DataLoader(langpair, is_base)
 

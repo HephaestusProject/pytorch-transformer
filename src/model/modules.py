@@ -39,6 +39,8 @@ class PositionalEncoding(nn.Module):
     def forward(self, embeddings: Tensor) -> Tensor:
         batch_size = embeddings.size(0)
         self.positional_encoding = self.positional_encoding.repeat(batch_size, 1, 1)
+        if torch.cuda.is_available():
+            self.positional_encoding = self.positional_encoding.to('cuda')
         embeddings = (
             embeddings + self.positional_encoding
         )  # (batch_size, max_len, embedding_dim)
@@ -139,6 +141,8 @@ class Attention(nn.Module):
         qk = qk.masked_fill(qk == 0, self.config.model.train_hparams.eps)
 
         if self.masked_attention:
+            if torch.cuda.is_available():
+                attention_mask = attention_mask.to('cuda')
             qk = qk.masked_fill(
                 attention_mask == 0, self.config.model.train_hparams.eps
             )

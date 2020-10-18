@@ -6,10 +6,6 @@ from omegaconf import DictConfig, OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 
 
-def get_device():
-    return torch.cuda.current_device()
-
-
 def read_lines(filepath: str) -> List[str]:
     """Read text file
 
