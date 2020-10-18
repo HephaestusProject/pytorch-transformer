@@ -59,7 +59,9 @@ class WMT14DataLoader(LightningDataModule):
             indices_batches:
         """
         max_tokens = (
-            self.configs.model.train_hparams.batch_size if max_tokens is None else max_tokens
+            self.configs.model.train_hparams.batch_size
+            if max_tokens is None
+            else max_tokens
         )
 
         start_idx = 0

@@ -40,27 +40,44 @@ class Transformer(LightningModule):
         return output
 
     def training_step(self, batch, batch_idx):
-        source = batch['source']
-        target = batch['target']
-        target_hat = self(source['padded_token'], source['mask'], target['padded_token'], target['mask'])  # (batch_size, max_len, vocab_size)
+        source = batch["source"]
+        target = batch["target"]
+        target_hat = self(
+            source["padded_token"],
+            source["mask"],
+            target["padded_token"],
+            target["mask"],
+        )  # (batch_size, max_len, vocab_size)
         target_hat.transpose_(1, 2)  # (batch_size, vocab_size, max_len)
-        target['padded_token'] = target['padded_token'][:, 1:]  # remove <bos> from target
+        target["padded_token"] = target["padded_token"][
+            :, 1:
+        ]  # remove <bos> from target
         target_hat = target_hat[:, :, :-1]  # match shape with target
-        loss = F.cross_entropy(target_hat, target['padded_token'], ignore_index=self.padding_idx)
+        loss = F.cross_entropy(
+            target_hat, target["padded_token"], ignore_index=self.padding_idx
+        )
         return loss
 
     def test_step(self, batch, batch_idx):
-        source = batch['source']
-        target = batch['target']
-        target_hat = self(source['padded_token'], source['mask'], target['padded_token'], target['mask'])  # (batch_size, max_len, vocab_size)
+        source = batch["source"]
+        target = batch["target"]
+        target_hat = self(
+            source["padded_token"],
+            source["mask"],
+            target["padded_token"],
+            target["mask"],
+        )  # (batch_size, max_len, vocab_size)
         target_hat.transpose_(1, 2)  # (batch_size, vocab_size, max_len)
-        target['padded_token'] = target['padded_token'][:, 1:]  # remove <bos> from target
+        target["padded_token"] = target["padded_token"][
+            :, 1:
+        ]  # remove <bos> from target
         target_hat = target_hat[:, :, :-1]  # match shape with target
-        loss = F.cross_entropy(target_hat, target['padded_token'], ignore_index=self.padding_idx)
+        loss = F.cross_entropy(
+            target_hat, target["padded_token"], ignore_index=self.padding_idx
+        )
         return loss
 
     def configure_optimizers(self):
-
         def _inverse_sqrt_warmup_scheduler(dim_model, current_step, warmup_steps):
             if current_step == 0:
                 return 0
@@ -69,7 +86,18 @@ class Transformer(LightningModule):
                 option_2 = current_step * (warmup_steps ** (-1.5))
                 return dim_model ** (-0.5) * min(option_1, option_2)
 
-        optimizer = torch.optim.Adam(self.parameters(), betas=(self.configs.model.train_hparams.beta_1, self.configs.model.train_hparams.beta_2), eps=self.configs.model.train_hparams.eps)
-        lr_lambda = lambda step: _inverse_sqrt_warmup_scheduler(self.configs.model.model_params.dim_model, step, self.configs.model.train_hparams.warmup_steps)  # noqa: E731
+        optimizer = torch.optim.Adam(
+            self.parameters(),
+            betas=(
+                self.configs.model.train_hparams.beta_1,
+                self.configs.model.train_hparams.beta_2,
+            ),
+            eps=self.configs.model.train_hparams.eps,
+        )
+        lr_lambda = lambda step: _inverse_sqrt_warmup_scheduler(
+            self.configs.model.model_params.dim_model,
+            step,
+            self.configs.model.train_hparams.warmup_steps,
+        )  # noqa: E731
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_lambda)
         return [optimizer], [scheduler]

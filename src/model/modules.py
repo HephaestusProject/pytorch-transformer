@@ -31,10 +31,10 @@ class PositionalEncoding(nn.Module):
         )
         positional_encoding[:, 0::2] = torch.sin(position / div_term)
         positional_encoding[:, 1::2] = torch.cos(position / div_term)
-        positional_encoding = positional_encoding.unsqueeze(0)  # (1, max_len, embedding_dim)
-        self.register_buffer(
-            "positional_encoding", positional_encoding
-        )
+        positional_encoding = positional_encoding.unsqueeze(
+            0
+        )  # (1, max_len, embedding_dim)
+        self.register_buffer("positional_encoding", positional_encoding)
 
     def forward(self, embeddings: Tensor) -> Tensor:
         batch_size = embeddings.size(0)
@@ -80,9 +80,7 @@ class Embeddings(nn.Module):
         embeddings *= self.scale
         _, max_len, dim_model = embeddings.size()  # max_len varies with the batch
         positional_encoding = PositionalEncoding(max_len, dim_model)
-        embeddings = positional_encoding(
-            embeddings
-        )  # (batch_size, max_len, dim_model)
+        embeddings = positional_encoding(embeddings)  # (batch_size, max_len, dim_model)
         return embeddings
 
 

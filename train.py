@@ -3,14 +3,14 @@ from datetime import datetime
 from pathlib import Path
 
 import torch
-from torch import nn
-from pytorch_lightning import seed_everything, Trainer
-from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning import Trainer, seed_everything
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import WandbLogger
+from torch import nn
 
 from src.dataloader import WMT14DataLoader
-from src.utils import Config
 from src.model.transformer import Transformer
+from src.utils import Config
 
 
 def train(langpair: str, model_type: str):
@@ -23,9 +23,15 @@ def train(langpair: str, model_type: str):
 
     save_dir = "results/"
     model_name = f"transformer-{langpair}-{model_type}"
-    wandb_logger = WandbLogger(model_name, save_dir=save_dir, version=f"version-{datetime.now().strftime('%d-%m-%Y--%H-%M-%S')}")
+    wandb_logger = WandbLogger(
+        model_name,
+        save_dir=save_dir,
+        version=f"version-{datetime.now().strftime('%d-%m-%Y--%H-%M-%S')}",
+    )
     checkpoint_path = Path(save_dir) / wandb_logger.version / "checkpoints"
-    checkpoint_callback = ModelCheckpoint(checkpoint_path, verbose=True, save_weights_only=True)
+    checkpoint_callback = ModelCheckpoint(
+        checkpoint_path, verbose=True, save_weights_only=True
+    )
 
     model = Transformer(langpair, is_base)
     for p in model.parameters():
@@ -42,16 +48,25 @@ def train(langpair: str, model_type: str):
         log_gpu_memory="all",
         check_val_every_n_epoch=1,
         max_steps=config.model.train_hparams.steps,
-        weights_summary='full',
+        weights_summary="full",
     )
-    dataloader.setup('fit')
+    dataloader.setup("fit")
     trainer.fit(model, dataloader)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--langpair", '-lp', help="Language pair to translate", required=True)
-    parser.add_argument("--model", dest="model_type", choices=["base", "big"], required=True, default="base", help="Transformer model type (e.g., base, big)")
+    parser.add_argument(
+        "--langpair", "-lp", help="Language pair to translate", required=True
+    )
+    parser.add_argument(
+        "--model",
+        dest="model_type",
+        choices=["base", "big"],
+        required=True,
+        default="base",
+        help="Transformer model type (e.g., base, big)",
+    )
 
     args = parser.parse_args()
     train(args.langpair, args.model_type)
