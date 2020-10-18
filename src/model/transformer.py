@@ -1,10 +1,11 @@
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor, nn
+from torch.nn import functional as F
 
 from src.model.decoder import Decoder
 from src.model.encoder import Encoder
-from src.utils import Config
+from src.utils import Config, load_tokenizer
 
 
 class Transformer(LightningModule):
@@ -17,6 +18,8 @@ class Transformer(LightningModule):
         self.configs.add_model(is_base)
         dim_model: int = self.configs.model.model_params.dim_model
         vocab_size = self.configs.tokenizer.vocab_size
+        tokenizer = load_tokenizer(langpair)
+        self.padding_idx = tokenizer.token_to_id("<pad>")
 
         self.encoder = Encoder(langpair)
         self.decoder = Decoder(langpair)
@@ -36,18 +39,24 @@ class Transformer(LightningModule):
         output = self.linear(target_emb)
         return output
 
-    def training_step(self, batch):
-        source = batch.source
-        target = batch.target
-        target_hat = self(source.padded_token, source.mask, target.padded_token, target.mask)
-        loss = nn.CrossEntropyLoss(target_hat, target)  # TODO: fix
+    def training_step(self, batch, batch_idx):
+        source = batch['source']
+        target = batch['target']
+        target_hat = self(source['padded_token'], source['mask'], target['padded_token'], target['mask'])  # (batch_size, max_len, vocab_size)
+        target_hat.transpose_(1, 2)  # (batch_size, vocab_size, max_len)
+        target['padded_token'] = target['padded_token'][:, 1:]  # remove <bos> from target
+        target_hat = target_hat[:, :, :-1]  # match shape with target
+        loss = F.cross_entropy(target_hat, target['padded_token'], ignore_index=self.padding_idx)
         return loss
 
-    def test_step(self, batch):
-        source = batch.source
-        target = batch.target
-        target_hat = self(source.padded_token, source.mask, target.padded_token, target.mask)
-        loss = nn.CrossEntropyLoss(target_hat, target)  # TODO: fix
+    def test_step(self, batch, batch_idx):
+        source = batch['source']
+        target = batch['target']
+        target_hat = self(source['padded_token'], source['mask'], target['padded_token'], target['mask'])  # (batch_size, max_len, vocab_size)
+        target_hat.transpose_(1, 2)  # (batch_size, vocab_size, max_len)
+        target['padded_token'] = target['padded_token'][:, 1:]  # remove <bos> from target
+        target_hat = target_hat[:, :, :-1]  # match shape with target
+        loss = F.cross_entropy(target_hat, target['padded_token'], ignore_index=self.padding_idx)
         return loss
 
     def configure_optimizers(self):

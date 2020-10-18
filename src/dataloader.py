@@ -45,7 +45,7 @@ class WMT14DataLoader(LightningDataModule):
 
     def batch_by_tokens(
         self, dataset: Dataset, max_tokens: Optional[int] = None
-    ) -> List[torch.Tensor]:
+    ) -> List[List]:
         """Create mini-batch tensors by number of tokens
 
         Args:
@@ -73,15 +73,15 @@ class WMT14DataLoader(LightningDataModule):
                 sum(source_sample_lens) > max_tokens
                 or sum(target_sample_lens) > max_tokens
             ):
-                indices_batch = torch.arange(start_idx, end_idx)
+                indices_batch = torch.arange(start_idx, end_idx).tolist()
                 indices_batches.append(indices_batch)
                 start_idx = end_idx
                 source_sample_lens, target_sample_lens = [source_sample_lens[-1]], [
                     target_sample_lens[-1]
                 ]  # end_idx is not included
             # when iteration ends
-            elif end_idx == len(dataset):
-                indices_batch = torch.arange(start_idx, end_idx)
+            elif end_idx == len(dataset) - 1:
+                indices_batch = torch.arange(start_idx, end_idx).tolist()
                 indices_batches.append(indices_batch)
         return indices_batches
 

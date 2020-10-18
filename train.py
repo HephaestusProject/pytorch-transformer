@@ -43,6 +43,7 @@ def train(langpair: str, model_type: str):
         check_val_every_n_epoch=1,
         max_steps=config.model.train_hparams.steps,
     )
+    dataloader.setup('fit')
     trainer.fit(model, dataloader)
 
 
