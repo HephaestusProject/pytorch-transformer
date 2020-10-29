@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from pytorch_lightning import LightningModule
 from torch import Tensor, nn
@@ -17,14 +18,14 @@ class Transformer(LightningModule):
         self.configs = Config()
         self.configs.add_tokenizer(langpair)
         self.configs.add_model(is_base)
-        dim_model: int = self.configs.model.model_params.dim_model
+        self.dim_model: int = self.configs.model.model_params.dim_model
         vocab_size = self.configs.tokenizer.vocab_size
         tokenizer = load_tokenizer(langpair)
         self.padding_idx = tokenizer.token_to_id("<pad>")
 
         self.encoder = Encoder(langpair)
         self.decoder = Decoder(langpair)
-        self.linear = nn.Linear(dim_model, vocab_size)
+        self.linear = nn.Linear(self.dim_model, vocab_size)
 
     def forward(
         self,
@@ -89,5 +90,18 @@ class Transformer(LightningModule):
             ),
             eps=self.configs.model.train_hparams.eps,
         )
-        scheduler = WarmUpAdam(optimizer, self.configs.model.model_params.dim_model, self.configs.model.train_hparams.warmup_steps)
-        return [optimizer], [scheduler]
+        return optimizer
+
+    def optimizer_step(self, current_epoch, batch_nb, optimizer, optimizer_idx, second_order_closure=None, on_tpu=False, using_native_amp=False, using_lbfgs=False):
+        # update optimizer every 2 steps if set 12500 tokens per batch (paper: 25000 tokens per step)
+        update_period = 25000 // self.configs.model.train_hparams.batch_size
+        warmup_steps = self.configs.model.train_hparams.warmup_steps
+        global_step = self.trainer.global_step
+        if global_step % update_period == 0:
+            step_num = global_step // update_period  # lazy update
+            lr_scale = np.min([np.power(step_num, -0.5), step_num * np.power(warmup_steps, -1.5)])
+            lr = lr_scale * np.power(self.dim_model, -0.5)
+            for param_group in optimizer.param_groups:
+                param_group['lr'] = lr
+            optimizer.step()
+            optimizer.zero_grad()
