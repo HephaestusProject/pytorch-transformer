@@ -43,6 +43,7 @@ def train(langpair: str, model_type: str):
 
     dataloader = WMT14DataLoader(langpair, is_base)
 
+    wandb_logger.watch(model, log='gradients', log_freq=100)
     trainer = Trainer(
         logger=wandb_logger,
         checkpoint_callback=checkpoint_callback,
@@ -51,7 +52,7 @@ def train(langpair: str, model_type: str):
         log_gpu_memory="all",
         check_val_every_n_epoch=1,
         max_steps=config.model.train_hparams.steps,
-        weights_summary="full",
+        weights_summary="top",
     )
     dataloader.setup("fit")
     trainer.fit(model, dataloader)

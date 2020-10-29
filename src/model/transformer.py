@@ -6,6 +6,7 @@ from torch.nn import functional as F
 from src.model.decoder import Decoder
 from src.model.encoder import Encoder
 from src.utils import Config, load_tokenizer
+from src.optim import WarmUpAdam
 
 
 class Transformer(LightningModule):
@@ -56,6 +57,7 @@ class Transformer(LightningModule):
         loss = F.cross_entropy(
             target_hat, target["padded_token"], ignore_index=self.padding_idx
         )
+        self.logger.experiment.log({'train_loss': loss})
         return loss
 
     def test_step(self, batch, batch_idx):
@@ -75,17 +77,10 @@ class Transformer(LightningModule):
         loss = F.cross_entropy(
             target_hat, target["padded_token"], ignore_index=self.padding_idx
         )
+        self.logger.experiment.log({'test_loss': loss})
         return loss
 
     def configure_optimizers(self):
-        def _inverse_sqrt_warmup_scheduler(dim_model, current_step, warmup_steps):
-            if current_step == 0:
-                return 0
-            else:
-                option_1 = current_step ** (-0.5)
-                option_2 = current_step * (warmup_steps ** (-1.5))
-                return dim_model ** (-0.5) * min(option_1, option_2)
-
         optimizer = torch.optim.Adam(
             self.parameters(),
             betas=(
@@ -94,10 +89,5 @@ class Transformer(LightningModule):
             ),
             eps=self.configs.model.train_hparams.eps,
         )
-        lr_lambda = lambda step: _inverse_sqrt_warmup_scheduler(
-            self.configs.model.model_params.dim_model,
-            step,
-            self.configs.model.train_hparams.warmup_steps,
-        )  # noqa: E731
-        scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda=lr_lambda)
+        scheduler = WarmUpAdam(optimizer, self.configs.model.model_params.dim_model, self.configs.model.train_hparams.warmup_steps)
         return [optimizer], [scheduler]
