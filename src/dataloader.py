@@ -68,8 +68,8 @@ class WMT14DataLoader(LightningDataModule):
         source_sample_lens, target_sample_lens = [], []
         indices_batches = []
         for end_idx in range(len(dataset)):
-            source_sample_lens.append(dataset[end_idx]["source"]["length"])
-            target_sample_lens.append(dataset[end_idx]["target"]["length"])
+            source_sample_lens.append(dataset[end_idx]["source"]["padded_token"].size(0))
+            target_sample_lens.append(dataset[end_idx]["target"]["padded_token"].size(0))
             # when batch is full
             if (
                 sum(source_sample_lens) > max_tokens
