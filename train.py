@@ -29,7 +29,7 @@ def train(langpair: str, model_type: str):
     wandb_logger = WandbLogger(
         model_name,
         save_dir=save_dir,
-        version=f"version-{datetime.now().strftime('%d-%m-%Y--%H-%M-%S')}",
+        version=f"version-{datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}",
     )
     checkpoint_path = Path(save_dir) / wandb_logger.version / "checkpoints"
     checkpoint_callback = ModelCheckpoint(
