@@ -30,7 +30,7 @@ class DecoderLayer(nn.Module):
 
     def attention_mask(self, batch_size: int, seq_len: int) -> Tensor:
         attention_shape = (batch_size, seq_len, seq_len)
-        attention_mask = np.triu(np.ones(attention_shape), k=1).astype("unit8")
+        attention_mask = np.triu(np.ones(attention_shape), k=1).astype("uint8")
         attention_mask = torch.from_numpy(attention_mask) == 0
         return attention_mask  # (batch_size, seq_len, seq_len)
 

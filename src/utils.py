@@ -1,6 +1,7 @@
 from pathlib import Path, PosixPath
 from typing import List
 
+import torch
 from omegaconf import DictConfig, OmegaConf
 from tokenizers import SentencePieceBPETokenizer
 
@@ -54,8 +55,8 @@ def load_tokenizer(langpair: str) -> SentencePieceBPETokenizer:
     )
 
     tokenizer = SentencePieceBPETokenizer(
-        vocab_file=str(vocab_filepath),
-        merges_file=str(merges_filepath),
+        vocab=str(vocab_filepath),
+        merges=str(merges_filepath),
     )
     return tokenizer
 

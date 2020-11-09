@@ -11,6 +11,7 @@ class PositionalEncoding(nn.Module):
     """PositionalEncoding
 
     Attributes:
+        batch_size: batch size of the input
         max_len: maximum length of the tokens
         embedding_dim: embedding dimension of the given token
     """
@@ -30,14 +31,16 @@ class PositionalEncoding(nn.Module):
         )
         positional_encoding[:, 0::2] = torch.sin(position / div_term)
         positional_encoding[:, 1::2] = torch.cos(position / div_term)
-        positional_encoding = positional_encoding.unsqueeze(0).transpose(
-            0, 1
-        )  # (max_len, 1, embedding_dim)
-        self.register_buffer(
-            "positional_encoding", positional_encoding
-        )  # TODO: register_buffer?
+        positional_encoding = positional_encoding.unsqueeze(
+            0
+        )  # (1, max_len, embedding_dim)
+        self.register_buffer("positional_encoding", positional_encoding)
 
     def forward(self, embeddings: Tensor) -> Tensor:
+        batch_size = embeddings.size(0)
+        self.positional_encoding = self.positional_encoding.repeat(batch_size, 1, 1)
+        if torch.cuda.is_available():
+            self.positional_encoding = self.positional_encoding.to('cuda')
         embeddings = (
             embeddings + self.positional_encoding
         )  # (batch_size, max_len, embedding_dim)
@@ -63,8 +66,6 @@ class Embeddings(nn.Module):
             self.vocab_size, self.dim_model, padding_idx=padding_idx
         )
         self.scale = self.dim_model ** 0.5
-        self.max_len = configs.model.model_params.max_len
-        self.positional_encoding = PositionalEncoding(self.max_len, self.dim_model)
 
     def forward(self, source_tokens: torch.Tensor) -> nn.Embedding:
         """Get embedding matrix for source tokens
@@ -79,9 +80,9 @@ class Embeddings(nn.Module):
             source_tokens
         )  # (batch_size, max_len, dim_model)
         embeddings *= self.scale
-        embeddings = self.positional_encoding(
-            embeddings
-        )  # (batch_size, max_len, dim_model)
+        _, max_len, dim_model = embeddings.size()  # max_len varies with the batch
+        positional_encoding = PositionalEncoding(max_len, dim_model)
+        embeddings = positional_encoding(embeddings)  # (batch_size, max_len, dim_model)
         return embeddings
 
 
@@ -130,18 +131,6 @@ class Attention(nn.Module):
             value: value embedding (batch_size, max_len, dim_model)
             attention_mask: used to implement masked_attention (batch_size, max_len, max_len)
         """
-        if self.masked_attention:
-            assert (
-                key == value
-            ), "masked self-attention requires key, and value to be of the same"
-            assert (
-                attention_mask is not None
-            ), "masked self-attention requires attention mask"
-        else:
-            assert (
-                query == key == value
-            ), "self-attention requires query, key, and value to be of the same"
-
         q = self.q_project(query)  # (batch_size, max_len, dim_q)
         k = self.k_project(key)  # (batch_size, max_len, dim_k)
         v = self.v_project(value)  # (batch_size, max_len, dim_v)
@@ -152,6 +141,8 @@ class Attention(nn.Module):
         qk = qk.masked_fill(qk == 0, self.config.model.train_hparams.eps)
 
         if self.masked_attention:
+            if torch.cuda.is_available():
+                attention_mask = attention_mask.to('cuda')
             qk = qk.masked_fill(
                 attention_mask == 0, self.config.model.train_hparams.eps
             )

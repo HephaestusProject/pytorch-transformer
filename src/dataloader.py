@@ -45,7 +45,7 @@ class WMT14DataLoader(LightningDataModule):
 
     def batch_by_tokens(
         self, dataset: Dataset, max_tokens: Optional[int] = None
-    ) -> List[torch.Tensor]:
+    ) -> List[List]:
         """Create mini-batch tensors by number of tokens
 
         Args:
@@ -59,29 +59,31 @@ class WMT14DataLoader(LightningDataModule):
             indices_batches:
         """
         max_tokens = (
-            25000 if max_tokens is None else self.configs.model.train_hparams.batch_size
+            self.configs.model.train_hparams.batch_size
+            if max_tokens is None
+            else max_tokens
         )
 
         start_idx = 0
         source_sample_lens, target_sample_lens = [], []
         indices_batches = []
         for end_idx in range(len(dataset)):
-            source_sample_lens.append(dataset[end_idx]["source"]["length"])
-            target_sample_lens.append(dataset[end_idx]["target"]["length"])
+            source_sample_lens.append(dataset[end_idx]["source"]["padded_token"].size(0))
+            target_sample_lens.append(dataset[end_idx]["target"]["padded_token"].size(0))
             # when batch is full
             if (
                 sum(source_sample_lens) > max_tokens
                 or sum(target_sample_lens) > max_tokens
             ):
-                indices_batch = torch.arange(start_idx, end_idx)
+                indices_batch = torch.arange(start_idx, end_idx).tolist()
                 indices_batches.append(indices_batch)
                 start_idx = end_idx
                 source_sample_lens, target_sample_lens = [source_sample_lens[-1]], [
                     target_sample_lens[-1]
                 ]  # end_idx is not included
             # when iteration ends
-            elif end_idx == len(dataset):
-                indices_batch = torch.arange(start_idx, end_idx)
+            elif end_idx == len(dataset) - 1:
+                indices_batch = torch.arange(start_idx, end_idx).tolist()
                 indices_batches.append(indices_batch)
         return indices_batches
 
@@ -96,7 +98,7 @@ class WMT14DataLoader(LightningDataModule):
             num_workers=self.configs.model.data_params.num_workers,
         )
 
-    def valid_dataloader(self) -> DataLoader:
+    def val_dataloader(self) -> DataLoader:
         batch_sampler = self.batch_by_tokens(self.valid_dataset)
         return DataLoader(
             self.valid_dataset,

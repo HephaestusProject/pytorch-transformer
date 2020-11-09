@@ -11,13 +11,14 @@ model_params:
   dropout: 0.1
 
 data_params:
-    num_workers: 8
+  num_workers: 8
 
 train_hparams:
-    batch_size: 25000  # by num_tokens
-    warmup_steps: 4000
-    optimizer: adam
-    beta_1: 0.9  # activates when optimizer is Adam
-    beta_2: 0.98  # activates when optimizer is Adam
-    eps: 1e-9  # FIXME: LayerNorm eps?
-    steps: 100000
+  batch_size: 6250  # by num_tokens, paper: 25000 tokens
+  steps: 400000  # paper: 100000, increase as batch_size decrease
+  warmup_steps: 4000
+  optimizer: adam
+  beta_1: 0.9  # activates when optimizer is Adam
+  beta_2: 0.98  # activates when optimizer is Adam
+  eps: 1e-9  # activates when optimizer is Adam
+  label_smoothing_eps: 0.1
