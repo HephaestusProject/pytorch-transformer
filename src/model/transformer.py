@@ -6,7 +6,6 @@ from torch.nn import functional as F
 
 from src.model.decoder import Decoder
 from src.model.encoder import Encoder
-from src.optim import WarmUpAdam
 from src.utils import Config, load_tokenizer
 from src.loss import LabelSmoothingLoss
 
