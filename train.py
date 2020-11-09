@@ -31,9 +31,9 @@ def train(langpair: str, model_type: str):
         save_dir=save_dir,
         version=f"version-{datetime.now().strftime('%Y-%m-%d--%H-%M-%S')}",
     )
-    checkpoint_path = Path(save_dir) / wandb_logger.version / "checkpoints"
+    checkpoint_path = Path(save_dir) / model_name / wandb_logger.version
     checkpoint_callback = ModelCheckpoint(
-        checkpoint_path, verbose=True, save_weights_only=True
+        filepath=checkpoint_path / "{epoch:02d}-{step}--{valid_loss:.2f}-{valid_bleu:.2f}" ,verbose=True, save_weights_only=True, monitor='valid_loss'
     )
 
     model = Transformer(langpair, is_base)
@@ -51,6 +51,7 @@ def train(langpair: str, model_type: str):
         auto_select_gpus=True,
         log_gpu_memory="all",
         check_val_every_n_epoch=1,
+        val_check_interval=0.01,
         max_steps=config.model.train_hparams.steps,
         weights_summary="top",
     )
