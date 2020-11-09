@@ -8,6 +8,7 @@ from src.model.decoder import Decoder
 from src.model.encoder import Encoder
 from src.utils import Config, load_tokenizer
 from src.loss import LabelSmoothingLoss
+from src.bleu import BLEU
 
 
 class Transformer(LightningModule):
@@ -28,6 +29,8 @@ class Transformer(LightningModule):
         self.linear = nn.Linear(self.dim_model, vocab_size)
 
         self.loss_with_label_smoothing = LabelSmoothingLoss(vocab_size, self.configs.model.train_hparams.label_smoothing_eps)
+        self.bleu = BLEU(langpair)
+
     def forward(
         self,
         source_tokens: Tensor,
@@ -58,7 +61,10 @@ class Transformer(LightningModule):
         target_hat = target_hat[:, :, :-1]  # match shape with target
         loss = self.loss_with_label_smoothing(target_hat, target['padded_token'], ignore_index=self.padding_idx)
         perplexity = torch.exp(loss)
+        bleu = self.bleu.compute(target_hat, target['padded_token'], target['length'])
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)  # pytorch lightning logger
+        self.log('train_bleu', bleu, on_step=True, on_epoch=True, prog_bar=True, logger=True)  # pytorch lightning logger
+        self.logger.experiment.log({'train_loss': loss, 'train_perplexity': perplexity, 'train_bleu': bleu})
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -77,7 +83,10 @@ class Transformer(LightningModule):
         target_hat = target_hat[:, :, :-1]  # match shape with target
         loss = self.loss_with_label_smoothing(target_hat, target['padded_token'], ignore_index=self.padding_idx)
         perplexity = torch.exp(loss)
+        bleu = self.bleu.compute(target_hat, target['padded_token'], target['length'])
         self.log('valid_loss', loss)
+        self.log('valid_bleu', bleu)
+        self.logger.experiment.log({'valid_loss': loss, 'valid_perplexity': perplexity, 'valid_bleu': bleu})
         return loss
 
     def configure_optimizers(self):
