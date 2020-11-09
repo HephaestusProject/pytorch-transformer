@@ -98,7 +98,7 @@ class WMT14DataLoader(LightningDataModule):
             num_workers=self.configs.model.data_params.num_workers,
         )
 
-    def valid_dataloader(self) -> DataLoader:
+    def val_dataloader(self) -> DataLoader:
         batch_sampler = self.batch_by_tokens(self.valid_dataset)
         return DataLoader(
             self.valid_dataset,

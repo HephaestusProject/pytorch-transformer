@@ -61,7 +61,7 @@ class Transformer(LightningModule):
         self.logger.experiment.log({'train_loss': loss})
         return loss
 
-    def test_step(self, batch, batch_idx):
+    def validation_step(self, batch, batch_idx):
         source = batch["source"]
         target = batch["target"]
         target_hat = self(
