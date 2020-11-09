@@ -48,15 +48,16 @@ def train(langpair: str, model_type: str):
         logger=wandb_logger,
         checkpoint_callback=checkpoint_callback,
         gpus=-1 if torch.cuda.is_available() else None,
-        auto_select_gpus=True,
         log_gpu_memory="all",
         check_val_every_n_epoch=1,
         val_check_interval=0.01,
         max_steps=config.model.train_hparams.steps,
         weights_summary="top",
+        gradient_clip_val=0.1
     )
     dataloader.setup("fit")
-    trainer.fit(model, dataloader)
+    trainer.fit(model, train_dataloader=dataloader.train_dataloader(), val_dataloaders=dataloader.val_dataloader())
+    print(f"best model path: {checkpoint_callback.best_model_path}")
 
 
 if __name__ == "__main__":
