@@ -8,6 +8,7 @@ from src.model.decoder import Decoder
 from src.model.encoder import Encoder
 from src.optim import WarmUpAdam
 from src.utils import Config, load_tokenizer
+from src.loss import LabelSmoothingLoss
 
 
 class Transformer(LightningModule):
@@ -27,6 +28,7 @@ class Transformer(LightningModule):
         self.decoder = Decoder(langpair)
         self.linear = nn.Linear(self.dim_model, vocab_size)
 
+        self.loss_with_label_smoothing = LabelSmoothingLoss(vocab_size, self.configs.model.train_hparams.label_smoothing_eps)
     def forward(
         self,
         source_tokens: Tensor,
@@ -55,10 +57,9 @@ class Transformer(LightningModule):
             :, 1:
         ]  # remove <bos> from target
         target_hat = target_hat[:, :, :-1]  # match shape with target
-        loss = F.cross_entropy(
-            target_hat, target["padded_token"], ignore_index=self.padding_idx
-        )
-        self.logger.experiment.log({'train_loss': loss})
+        loss = self.loss_with_label_smoothing(target_hat, target['padded_token'], ignore_index=self.padding_idx)
+        perplexity = torch.exp(loss)
+        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)  # pytorch lightning logger
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -75,10 +76,9 @@ class Transformer(LightningModule):
             :, 1:
         ]  # remove <bos> from target
         target_hat = target_hat[:, :, :-1]  # match shape with target
-        loss = F.cross_entropy(
-            target_hat, target["padded_token"], ignore_index=self.padding_idx
-        )
-        self.logger.experiment.log({'test_loss': loss})
+        loss = self.loss_with_label_smoothing(target_hat, target['padded_token'], ignore_index=self.padding_idx)
+        perplexity = torch.exp(loss)
+        self.log('valid_loss', loss)
         return loss
 
     def configure_optimizers(self):
